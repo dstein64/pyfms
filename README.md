@@ -115,12 +115,12 @@ PyFactorizationMachines has an [MIT License](https://en.wikipedia.org/wiki/MIT_L
 See [LICENSE](LICENSE).
 
 Acknowledgments
-===============
+---------------
 
 RMSprop code is from [Newmu/Theano-Tutorials](https://github.com/Newmu/Theano-Tutorials/blob/master/4_modern_net.py).
 
 References
-==========
+----------
 
 Rendle, S. 2010. “Factorization Machines.” In 2010 IEEE 10th International Conference on Data Mining (ICDM), 995–1000.
 doi:10.1109/ICDM.2010.127.
