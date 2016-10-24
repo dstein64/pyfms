@@ -63,7 +63,7 @@ class _FactorizationMachine(object):
         updates = []
         params = [self.w0, self.w1, self.v]
         grads = T.grad(cost=loss, wrt=params)
-        # rmsprop TODO: adam
+        # RMSProp
         lr, rho, epsilon = 0.001, 0.9, 1e-6
         for p, g in zip(params, grads):
             acc = theano.shared(p.get_value() * 0.)
@@ -106,7 +106,6 @@ class _FactorizationMachine(object):
         """Learns the weights of a factorization machine with mini-batch gradient
         descent. The weights that minimize the loss function (across epochs) are
         retained."""
-        # TODO: support for validation
         n = X.shape[0]
         if batch_size > n:
             batch_size = n
