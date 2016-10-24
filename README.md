@@ -62,13 +62,13 @@ dimensions.
 
 ### Predicting with a FactorizationMachine
 
-For regression models, *FactorizationMachineRegressor.predict* can be used to predict the regression target for a
+For regression models, *FactorizationMachineRegressor.predict* can be used to predict the regression targets for a
 dataset X.
 
     >>> model.predict(X)
 
-For binary classification models, *FactorizationMachineClassifier.predict* can be used to predict the class target for a
-dataset X. *FactorizationMachineClassifier.predict_proba* returns the class 1 probability for a dataset X.
+For binary classification models, *FactorizationMachineClassifier.predict* can be used to predict the class targets for
+a dataset X. *FactorizationMachineClassifier.predict_proba* returns the class 1 probability for a dataset X.
 
     >>> model.predict(X)
     >>> model.predict_proba(X)
