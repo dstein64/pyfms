@@ -1,7 +1,8 @@
 ﻿PyFactorizationMachines
 =======================
 
-An implementation of factorization machines, based on the model presented in *Factorization Machines* (Rendle 2010).
+A Theano-based Python implementation of factorization machines, based on the model presented in *Factorization Machines*
+(Rendle 2010).
 
 Dependencies
 ------------
@@ -29,7 +30,7 @@ To use PyFactorizationMachines, first import the *pyfm* module.
 ### Initializing a Model
 
 A factorization machine is created with *FactorizationMachineClassifier* for a binary classification problem, or
-FactorizationMachineRegressor for regression. Each constructor requires an argument specifying the number of features.
+FactorizationMachineRegressor for regression. The constructors requires an argument specifying the number of features.
 
     >>> model = pyfm.FactorizationMachineRegressor(20)
 
@@ -57,7 +58,7 @@ dimensions.
 * **shuffle** (optional; defaults to True) A flag indicating whether to shuffle the training samples at each epoch.
 * **verbose** (optional; defaults to False) A flag specifying whether to log details to stdout when training the model.
 
-### Predicting with a PyFactorizationMachine
+### Predicting with a FactorizationMachine
 
 For regression models, *FactorizationMachineRegressor.predict* can be used to predict the regression target for a
 dataset X.
@@ -76,7 +77,7 @@ dataset X. *FactorizationMachineClassifier.predict_proba* returns the class 1 pr
 * **X** An *n-by-d* numpy.ndarray with data. The rows correspond to observations, and the columns correspond to
 dimensions.
 
-### Saving a PyFactorizationMachine
+### Saving a FactorizationMachine
 
 A factorization machine is saved with the *save* method, which takes as input a filename.
 
@@ -86,7 +87,7 @@ A factorization machine is saved with the *save* method, which takes as input a 
 
 * **path** The file path for saving the model.
 
-### Loading a Saved PyFactorizationMachine
+### Loading a Saved FactorizationMachine
 
 A saved factorization machine can be loaded with the *load* top-level function.
 
