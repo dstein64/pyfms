@@ -40,8 +40,6 @@ FactorizationMachineRegressor and FactorizationMachineClassifier both take the f
 * **k** (optional; defaults to 8) Dimensionality of the factorization of pairwise interactions.
 * **stdev** (optional; defaults to .01) The standard deviation of the normal distribution used to initialize the
 interaction parameters of the model.
-* **beta_w1** (optional; defaults to 0.0) The amount of L2 regularization for the first-order model parameters.
-* **beta_v** (optional; defaults to 0.0) The amount of L2 regularization for the interaction parameters.
     
 ### Training a Model
 
@@ -59,6 +57,8 @@ dimensions.
 * **nb_epoch** (optional; defaults to 10)  The number of epochs to train the model.
 * **shuffle** (optional; defaults to True) A flag indicating whether to shuffle the training samples at each epoch.
 * **verbose** (optional; defaults to False) A flag specifying whether to log details to stdout when training the model.
+* **beta_w1** (optional; defaults to 0.0) The amount of L2 regularization for the first-order model parameters.
+* **beta_v** (optional; defaults to 0.0) The amount of L2 regularization for the interaction parameters.
 
 ### Predicting with a FactorizationMachine
 

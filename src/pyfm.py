@@ -19,15 +19,15 @@ class _FactorizationMachine(object):
                  feature_count,
                  classifier=False,
                  k = 8,
-                 stdev = 0.1,
-                 beta_w1 = 0.0,
-                 beta_v = 0.0):
+                 stdev = 0.1):
         self.classifier = classifier
         d = feature_count
 
         # *** Symbolic variables ***
         X = T.matrix()
         y = T.vector()
+        beta_w1 = T.scalar()
+        beta_v = T.scalar()
 
         # *** Model parameters ***
         # bias term (intercept)
@@ -56,9 +56,7 @@ class _FactorizationMachine(object):
         else:
             error = T.mean((y - y_hat)**2)
         # regularization
-        L2 = 0.0
-        if beta_w1 > 0.0 or beta_v > 0.0:
-            L2 = beta_w1 * T.mean(self.w1 ** 2) + beta_v * T.mean(self.v ** 2)
+        L2 = beta_w1 * T.mean(self.w1 ** 2) + beta_v * T.mean(self.v ** 2)
         loss = error + L2
 
         # *** Learning ***
@@ -76,10 +74,10 @@ class _FactorizationMachine(object):
             updates.append((p, p - lr * g))
 
         self.theano_train = theano.function(
-            inputs=[X, y], outputs=loss, updates=updates, allow_input_downcast=True)
+            inputs=[X, y, beta_w1, beta_v], outputs=loss, updates=updates, allow_input_downcast=True)
 
         self.theano_cost = theano.function(
-            inputs=[X, y], outputs=loss, allow_input_downcast=True)
+            inputs=[X, y, beta_w1, beta_v], outputs=loss, allow_input_downcast=True)
 
         # *** Prediction ***
         self.theano_predict = theano.function(
@@ -98,7 +96,13 @@ class _FactorizationMachine(object):
         self.v.set_value(weights.v)
 
 
-    def fit(self, X, y, batch_size=32, nb_epoch=10, shuffle=True, verbose=False):
+    def fit(self, X, y,
+            batch_size=32,
+            nb_epoch=10,
+            shuffle=True,
+            verbose=False,
+            beta_w1=0.0,
+            beta_v=0.0):
         """Learns the weights of a factorization machine with mini-batch gradient
         descent. The weights that minimize the loss function (across epochs) are
         retained."""
@@ -117,8 +121,8 @@ class _FactorizationMachine(object):
                 if start >= n:
                     break
                 stop = min(start + batch_size, n)
-                self.theano_train(X[start:stop], y[start:stop])
-            current_loss = self.theano_cost(X, y)
+                self.theano_train(X[start:stop], y[start:stop], beta_w1, beta_v)
+            current_loss = self.theano_cost(X, y, beta_w1, beta_v)
             if current_loss < min_loss:
                 min_loss = current_loss
                 min_loss_weights = self.get_weights()
