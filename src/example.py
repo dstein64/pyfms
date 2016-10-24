@@ -15,7 +15,7 @@ def err(actual, predicted):
 # regression
 X, y = datasets.load_boston(return_X_y=True)
 fm = pyfm.FactorizationMachineRegressor(X.shape[1])
-fm.fit(X, y, verbose=False)
+fm.fit(X, y, verbose=False, nb_epoch=5000)
 
 f = "fm.model"
 fm.save(f)
@@ -32,7 +32,7 @@ print 'MSE: {}'.format(mse(y, linear_regression.predict(X)))
 X, y = datasets.load_breast_cancer(return_X_y=True)
 
 fm = pyfm.FactorizationMachineClassifier(X.shape[1])
-fm.fit(X, y, verbose=False)
+fm.fit(X, y, verbose=False, nb_epoch=5000)
 print 'Error: {}'.format(err(y, fm.predict(X)))
 
 logistic_regression = LogisticRegression()

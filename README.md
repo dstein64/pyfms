@@ -30,7 +30,7 @@ To use PyFactorizationMachines, first import the *pyfm* module.
 ### Initializing a Model
 
 A factorization machine is created with *FactorizationMachineClassifier* for a binary classification problem, or
-FactorizationMachineRegressor for regression. The constructors requires an argument specifying the number of features.
+*FactorizationMachineRegressor* for regression. The constructors requires an argument specifying the number of features.
 
     >>> model = pyfm.FactorizationMachineRegressor(20)
 
