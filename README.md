@@ -93,7 +93,7 @@ A factorization machine is saved with the *save* method, which takes as input a 
 
 A saved factorization machine can be loaded with the *load* top-level function.
 
-    >>> fm = pyfm.load(""/path/to/model.mdl")
+    >>> fm = pyfm.load("/path/to/model.mdl")
 
 *load* takes the following arguments:
 
