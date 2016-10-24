@@ -1,8 +1,12 @@
 import itertools
+from collections import namedtuple
 
 import numpy as np
 import theano
 from theano import tensor as T
+
+
+_Weights = namedtuple('_Weights', ['w0', 'w1', 'v'])
 
 
 class _FactorizationMachine(object):
@@ -76,11 +80,28 @@ class _FactorizationMachine(object):
             inputs=[X], outputs=y_hat, allow_input_downcast=True)
 
 
+    def get_weights(self):
+        """Returns a _Weights namedtuple"""
+        return _Weights(*(w.get_value() for w in (self.w0, self.w1, self.v)))
+
+
+    def set_weights(self, weights):
+        """Sets weights from a _Weights namedtuple"""
+        self.w0.set_value(weights.w0)
+        self.w1.set_value(weights.w1)
+        self.v.set_value(weights.v)
+
+
     def fit(self, X, y, batch_size=32, nb_epoch=10, shuffle=True, verbose=False):
+        """Learns the weights of a factorization machine with mini-batch gradient
+        descent. The weights that minimize the loss function (across epochs) are
+        retained."""
         # TODO: support for validation
         n = X.shape[0]
         if batch_size > n:
             batch_size = n
+        min_loss = float('inf')
+        min_loss_weights = self.get_weights()
         for i in range(nb_epoch):
             if shuffle:
                 indices = np.arange(n)
@@ -91,18 +112,21 @@ class _FactorizationMachine(object):
                     break
                 stop = min(start + batch_size, n)
                 self.theano_train(X[start:stop], y[start:stop])
+            current_loss = self.theano_cost(X, y)
+            if current_loss < min_loss:
+                min_loss = current_loss
+                min_loss_weights = self.get_weights()
             if verbose:
                 print 'Epoch {}/{}'.format(i+1, nb_epoch)
-                print ' loss: {}'.format(self.theano_cost(X, y))
+                print ' loss: {}, min_loss: {}'.format(current_loss, min_loss)
+        self.set_weights(min_loss_weights)
 
 
     def save(self, path):
         with open(path, 'wb') as f:
-            np.savez(f,
-                     classifier=self.classifier,
-                     w0=self.w0.get_value(),
-                     w1=self.w1.get_value(),
-                     v=self.v.get_value())
+            w0, w1, v = self.get_weights()
+            np.savez(
+                f, classifier=self.classifier, w0=w0, w1=w1, v=v)
 
 
 class FactorizationMachineClassifier(_FactorizationMachine, object):
@@ -134,11 +158,9 @@ class FactorizationMachineRegressor(_FactorizationMachine, object):
 def load(path):
     meta = np.load(path)
     classifier = meta['classifier']
-    w0, w1, v = [meta[key] for key in ['w0', 'w1', 'v']]
-    k, d = v.shape
+    weights = _Weights(*[meta[key] for key in ['w0', 'w1', 'v']])
+    k, d = weights.v.shape
     cls = FactorizationMachineClassifier if classifier else FactorizationMachineRegressor
     model = cls(d, k=k)
-    model.w0.set_value(w0)
-    model.w1.set_value(w1)
-    model.v.set_value(v)
+    model.set_weights(weights)
     return model
