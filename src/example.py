@@ -7,6 +7,9 @@ from sklearn.model_selection import train_test_split
 
 import pyfm
 
+# This shows examples of how to use PyFactorizationMachines. The datasets may not be
+# particularly suitable for using factorization machines.
+
 
 def error_score(y_true, y_pred):
     return 1.0 - accuracy_score(y_true, y_pred)
