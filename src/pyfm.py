@@ -19,7 +19,9 @@ class _FactorizationMachine(object):
                  feature_count,
                  classifier=False,
                  k = 8,
-                 stdev = 0.1):
+                 stdev = 0.1,
+                 beta_w1 = 0.0,
+                 beta_v = 0.0):
         self.classifier = classifier
         d = feature_count
 
@@ -49,11 +51,15 @@ class _FactorizationMachine(object):
             y_hat = T.nnet.sigmoid(y_hat)
 
         # *** Loss Function ***
-        # TODO: add L1 and L2 regularization and possibly an auto-picked default proportion...
         if self.classifier:
-            loss = T.mean(T.nnet.binary_crossentropy(y_hat, y))
+            error = T.mean(T.nnet.binary_crossentropy(y_hat, y))
         else:
-            loss = T.mean((y - y_hat)**2)
+            error = T.mean((y - y_hat)**2)
+        # regularization
+        L2 = 0.0
+        if beta_w1 > 0.0 or beta_v > 0.0:
+            L2 = beta_w1 * T.mean(self.w1 ** 2) + beta_v * T.mean(self.v ** 2)
+        loss = error + L2
 
         # *** Learning ***
         updates = []
