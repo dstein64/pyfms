@@ -1,8 +1,16 @@
+import itertools
+
 import numpy as np
 import theano
 from theano import tensor as T
 
-class FactorizationMachine(object):
+
+class _FactorizationMachine(object):
+    """Base class for factorization machines.
+
+    Warning: This class should not be used directly. Use derived classes
+    instead (FactorizationMachineClassifier and FactorizationMachineRegressor).
+    """
     def __init__(self,
                  feature_count,
                  classifier=False,
@@ -16,7 +24,7 @@ class FactorizationMachine(object):
         y = T.vector()
 
         # *** Model parameters ***
-        # bias term
+        # bias term (intercept)
         w0_init = np.zeros(1)
         self.w0 = theano.shared(w0_init, allow_downcast=True)
         # first order coefficients
@@ -27,7 +35,7 @@ class FactorizationMachine(object):
         self.v = theano.shared(v_init, allow_downcast=True)
 
         # *** The Model ***
-        # the formula for pairwise interactions is from bottom left
+        # The formula for pairwise interactions is from the bottom left
         # of page 997 of Rendle 2010, "Factorization Machines."
         # This version scales linearly in k and d, as opposed to O(d^2).
         interactions = 0.5 * T.sum((T.dot(X, T.transpose(self.v)) ** 2) - \
@@ -37,6 +45,7 @@ class FactorizationMachine(object):
             y_hat = T.nnet.sigmoid(y_hat)
 
         # *** Loss Function ***
+        # TODO: add L1 and L2 regularization and possibly an auto-picked default proportion...
         if self.classifier:
             loss = T.mean(T.nnet.binary_crossentropy(y_hat, y))
         else:
@@ -46,7 +55,7 @@ class FactorizationMachine(object):
         updates = []
         params = [self.w0, self.w1, self.v]
         grads = T.grad(cost=loss, wrt=params)
-        # rmsprop
+        # rmsprop TODO: adam
         lr, rho, epsilon = 0.001, 0.9, 1e-6
         for p, g in zip(params, grads):
             acc = theano.shared(p.get_value() * 0.)
@@ -59,15 +68,33 @@ class FactorizationMachine(object):
         self.theano_train = theano.function(
             inputs=[X, y], outputs=loss, updates=updates, allow_input_downcast=True)
 
+        self.theano_cost = theano.function(
+            inputs=[X, y], outputs=loss, allow_input_downcast=True)
+
         # *** Prediction ***
         self.theano_predict = theano.function(
             inputs=[X], outputs=y_hat, allow_input_downcast=True)
 
-    def fit(self, X, y, epochs=100000, verbose=False):
-        for i in range(epochs):
-            cost = self.theano_train(X, y)
+
+    def fit(self, X, y, batch_size=32, nb_epoch=10, shuffle=True, verbose=False):
+        # TODO: support for validation
+        n = X.shape[0]
+        if batch_size > n:
+            batch_size = n
+        for i in range(nb_epoch):
+            if shuffle:
+                indices = np.arange(n)
+                np.random.shuffle(indices)
+                X, y = X[indices], y[indices]
+            for start in itertools.count(0, batch_size):
+                if start >= n:
+                    break
+                stop = min(start + batch_size, n)
+                self.theano_train(X[start:stop], y[start:stop])
             if verbose:
-                print i, cost
+                print 'Epoch {}/{}'.format(i+1, nb_epoch)
+                print ' loss: {}'.format(self.theano_cost(X, y))
+
 
     def save(self, path):
         with open(path, 'wb') as f:
@@ -77,24 +104,32 @@ class FactorizationMachine(object):
                      w1=self.w1.get_value(),
                      v=self.v.get_value())
 
-class FactorizationMachineClassifier(FactorizationMachine, object):
+
+class FactorizationMachineClassifier(_FactorizationMachine, object):
+    """A factorization machine classifier."""
     def __init__(self, *args, **kwargs):
         kwargs['classifier'] = True
         super(FactorizationMachineClassifier, self).__init__(*args, **kwargs)
 
+
     def predict(self, X):
         return (self.theano_predict(X) > 0.5).astype(np.int)
+
 
     def predict_proba(self, X):
         return self.theano_predict(X)
 
-class FactorizationMachineRegressor(FactorizationMachine, object):
+
+class FactorizationMachineRegressor(_FactorizationMachine, object):
+    """A factorization machine regressor."""
     def __init__(self, *args, **kwargs):
         kwargs['classifier'] = False
         super(FactorizationMachineRegressor, self).__init__(*args, **kwargs)
 
+
     def predict(self, X):
         return self.theano_predict(X)
+
 
 def load(path):
     meta = np.load(path)
