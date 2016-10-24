@@ -97,7 +97,7 @@ class _FactorizationMachine(object):
 
 
     def fit(self, X, y,
-            batch_size=32,
+            batch_size=50,
             nb_epoch=10,
             shuffle=True,
             verbose=False,
