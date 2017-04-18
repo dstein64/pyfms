@@ -260,14 +260,16 @@ class _FactorizationMachine(object):
 
 class FactorizationMachineClassifier(_FactorizationMachine, object):
     """A factorization machine classifier."""
-    def __init__(self, *args, **kwargs):
-        args = args + (Sigmoid(),)
-        super(FactorizationMachineClassifier, self).__init__(*args, **kwargs)
+    def __init__(self, feature_count, **kwargs):
+        transformer = Sigmoid()
+        super(FactorizationMachineClassifier, self).__init__(
+            feature_count, transformer, **kwargs)
 
 
-    def fit(self, *args, **kwargs):
-        args = args + (BinaryCrossEntropy(),)
-        super(FactorizationMachineClassifier, self).fit(*args, **kwargs)
+    def fit(self, X, y, **kwargs):
+        error_function = BinaryCrossEntropy()
+        super(FactorizationMachineClassifier, self).fit(
+            X, y, error_function, **kwargs)
 
 
     def predict(self, X):
@@ -280,14 +282,16 @@ class FactorizationMachineClassifier(_FactorizationMachine, object):
 
 class FactorizationMachineRegressor(_FactorizationMachine, object):
     """A factorization machine regressor."""
-    def __init__(self, *args, **kwargs):
-        args = args + (Linear(),)
-        super(FactorizationMachineRegressor, self).__init__(*args, **kwargs)
+    def __init__(self, feature_count, **kwargs):
+        transformer = Linear()
+        super(FactorizationMachineRegressor, self).__init__(
+            feature_count, transformer, **kwargs)
 
 
-    def fit(self, *args, **kwargs):
-        args = args + (SquaredError(),)
-        super(FactorizationMachineRegressor, self).fit(*args, **kwargs)
+    def fit(self, X, y, **kwargs):
+        error_function = SquaredError()
+        super(FactorizationMachineRegressor, self).fit(
+            X, y, error_function, **kwargs)
 
 
     def predict(self, X):
