@@ -65,10 +65,10 @@ target values. For binary classification, the target values must be 1 or 0.
 * **X** An *n-by-d* numpy.ndarray with training data. The rows correspond to observations, and the columns correspond to
 dimensions.
 * **y** A numpy.ndarray vector with *n* target values corresponding to the *n* data points in *X*.
-* **optimizer** (optional; defaults to RMSProp()) An object of a class that extends *_Optimizer*, which specifies how
+* **optimizer** (optional; defaults to *RMSProp()*) An object of a class that extends *_Optimizer*, which specifies how
 to optimize the loss function.
 * **regularizer** (optional; defaults to None) An object of a class that extends *_Regularizer*, which specifies how
-to regularize the loss function. For example, see L2, which implements L2 regularization.
+to regularize the loss function. For example, see *L2*, which implements L2 regularization.
 * **sample_weight** (optional; defaults to None) A numpy.ndarray vector with *n* sample weights corresponding to the
 *n* data points in *X*.
 * **batch_size** (optional; defaults to 128) Number of samples per gradient update.
