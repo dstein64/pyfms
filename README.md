@@ -71,8 +71,8 @@ to optimize the loss function.
 to regularize the loss function. For example, see L2, which implements L2 regularization.
 * **sample_weight** (optional; defaults to None) A numpy.ndarray vector with *n* sample weights corresponding to the
 *n* data points in *X*.
-* **batch_size** (optional; defaults to 32) Number of samples per gradient update.
-* **nb_epoch** (optional; defaults to 10)  The number of epochs to train the model.
+* **batch_size** (optional; defaults to 128) Number of samples per gradient update.
+* **nb_epoch** (optional; defaults to 100)  The number of epochs to train the model.
 * **shuffle** (optional; defaults to True) A flag indicating whether to shuffle the training samples at each epoch.
 * **verbose** (optional; defaults to False) A flag specifying whether to log details to stdout when training the model.
 * **memory** (optional; defaults to True) If False, the last set of weights from training will be retained. If True,

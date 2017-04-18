@@ -178,7 +178,7 @@ class _FactorizationMachine(object):
             regularizer = None,
             sample_weight = None,
             batch_size = 128,
-            nb_epoch = 10,
+            nb_epoch = 100,
             shuffle = True,
             verbose = False,
             memory = True):
