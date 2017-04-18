@@ -111,8 +111,8 @@ A factorization machine is saved with the *save_weights* method, which takes as 
 
 A saved factorization machine can be loaded with the *load_weights* method.
     
-    >>> fm = pyfm.FactorizationMachineRegressor(feature_count)
-    >>> fm.load_weights("/path/to/model.fm")
+    >>> model = pyfm.FactorizationMachineRegressor(feature_count)
+    >>> model.load_weights("/path/to/model.fm")
 
 *load_weights* takes the following arguments:
 
