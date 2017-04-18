@@ -9,103 +9,36 @@ from theano import tensor as T
 _Weights = namedtuple('_Weights', ['w0', 'w1', 'v'])
 
 
-class _Optimizer(object):
+class Optimizer(object):
     __metaclass__ = abc.ABCMeta
     @abc.abstractmethod
     def update(self, cost, params):
         raise NotImplementedError()
 
 
-class RMSProp(_Optimizer):
-    def __init__(self,
-                 lr = 0.001,
-                 rho = 0.9,
-                 epsilon = 1e-6):
-        self.lr = lr
-        self.rho = rho
-        self.epsilon = epsilon
-
-    def update(self, loss, params):
-        updates = []
-        grads = T.grad(cost=loss, wrt=params)
-        for p, g in zip(params, grads):
-            acc = theano.shared(p.get_value() * 0., allow_downcast=True)
-            acc_new = self.rho * acc + (1 - self.rho) * g ** 2
-            gradient_scaling = T.sqrt(acc_new + self.epsilon)
-            g = g / gradient_scaling
-            updates.append((acc, acc_new))
-            updates.append((p, p - self.lr * g))
-        return updates
-
-
-class SGD(_Optimizer):
-    def __init__(self, lr = 0.001):
-        self.lr = lr
-
-    def updates(self, loss, params):
-        updates = []
-        grads = T.grad(cost=loss, wrt=params)
-        for p, g in zip(params, grads):
-            updates.append((p, p - self.lr * g))
-        return updates
-
-
-class _ErrorFunction(object):
+class Error(object):
     __metaclass__ = abc.ABCMeta
     @abc.abstractmethod
     def apply(self, y, y_hat):
         raise NotImplementedError()
 
 
-class SquaredError(_ErrorFunction):
-    def apply(self, y, y_hat):
-        return (y - y_hat)**2
-
-
-class BinaryCrossEntropy(_ErrorFunction):
-    def apply(self, y, y_hat):
-        return T.nnet.binary_crossentropy(y_hat, y)
-
-
-class _Regularizer(object):
+class Regularizer(object):
     __metaclass__ = abc.ABCMeta
     @abc.abstractmethod
     def regularize(self, loss, w0, w1, v):
         raise NotImplementedError()
-
-
-class L2(_Regularizer):
-    def __init__(self, beta_w0 = 0.0, beta_w1 = 0.0, beta_v = 0.0):
-        self.beta_w0 = beta_w0
-        self.beta_w1 = beta_w1
-        self.beta_v = beta_v
-
-    def regularize(self, loss, w0, w1, v):
-        penalty = (self.beta_w0 * w0) \
-                  + (self.beta_w1 * T.mean(w1 ** 2)) \
-                  + (self.beta_v * T.mean(v ** 2))
-        return loss + penalty
 
 
 # This is used for transforming PyFactorizationMachine's output
-class _Transformer(object):
+class Transformer(object):
     __metaclass__ = abc.ABCMeta
     @abc.abstractmethod
     def transform(self, y_hat):
         raise NotImplementedError()
 
 
-class Linear(_Transformer):
-    def transform(self, y_hat):
-        return y_hat
-
-
-class Sigmoid(_Transformer):
-    def transform(self, y_hat):
-        return T.nnet.sigmoid(y_hat)
-
-
-class _FactorizationMachine(object):
+class Model(object):
     """Base class for factorization machines.
 
     Warning: This class should not be used directly. Use derived classes
@@ -174,7 +107,7 @@ class _FactorizationMachine(object):
 
     def fit(self, X_train, y_train,
             error_function,
-            optimizer = RMSProp(),
+            optimizer,
             regularizer = None,
             sample_weight = None,
             batch_size = 128,
@@ -256,43 +189,3 @@ class _FactorizationMachine(object):
         meta = np.load(path)
         weights = _Weights(*[meta[key] for key in ['w0', 'w1', 'v']])
         self.set_weights(weights)
-
-
-class FactorizationMachineClassifier(_FactorizationMachine, object):
-    """A factorization machine classifier."""
-    def __init__(self, feature_count, **kwargs):
-        transformer = Sigmoid()
-        super(FactorizationMachineClassifier, self).__init__(
-            feature_count, transformer, **kwargs)
-
-
-    def fit(self, X_train, y_train, **kwargs):
-        error_function = BinaryCrossEntropy()
-        super(FactorizationMachineClassifier, self).fit(
-            X_train, y_train, error_function, **kwargs)
-
-
-    def predict(self, X):
-        return (self.predict_proba(X) > 0.5).astype(np.int)
-
-
-    def predict_proba(self, X):
-        return self.theano_predict(X)
-
-
-class FactorizationMachineRegressor(_FactorizationMachine, object):
-    """A factorization machine regressor."""
-    def __init__(self, feature_count, **kwargs):
-        transformer = Linear()
-        super(FactorizationMachineRegressor, self).__init__(
-            feature_count, transformer, **kwargs)
-
-
-    def fit(self, X_train, y_train, **kwargs):
-        error_function = SquaredError()
-        super(FactorizationMachineRegressor, self).fit(
-            X_train, y_train, error_function, **kwargs)
-
-
-    def predict(self, X):
-        return self.theano_predict(X)

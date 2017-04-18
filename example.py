@@ -6,7 +6,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
 
-import pyfm
+import pyfms.models
 
 # This shows examples of how to use PyFactorizationMachines. The datasets may not be
 # particularly suitable for using factorization machines.
@@ -23,7 +23,7 @@ print '*** Regression Example ***'
 X, y = datasets.load_boston(return_X_y=True)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
-factorization_machine_regressor = pyfm.FactorizationMachineRegressor(X.shape[1])
+factorization_machine_regressor = pyfms.models.Regressor(X.shape[1])
 factorization_machine_regressor.fit(X_train, y_train, verbose=False, nb_epoch=5000)
 print '  Factorization Machine MSE: {}'.format(
     mean_squared_error(y_test, factorization_machine_regressor.predict(X_test)))
@@ -38,7 +38,7 @@ print '\n*** Binary Classification Example ***'
 X, y = datasets.load_breast_cancer(return_X_y=True)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
-factorization_machine_classifier = pyfm.FactorizationMachineClassifier(X.shape[1])
+factorization_machine_classifier = pyfms.models.Classifier(X.shape[1])
 factorization_machine_classifier.fit(X_train, y_train, verbose=False, nb_epoch=5000)
 print '  Factorization Machine Error: {}'.format(
     error_score(y_test, factorization_machine_classifier.predict(X_test)))
@@ -60,6 +60,6 @@ print '\n*** Loading a Saved Model Example ***'
 
 del factorization_machine_classifier
 
-factorization_machine_classifier = pyfm.FactorizationMachineClassifier(X.shape[1])
+factorization_machine_classifier = pyfms.models.Classifier(X.shape[1])
 factorization_machine_classifier.load_weights(f)
 print '  model loaded'

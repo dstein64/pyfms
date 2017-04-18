@@ -35,18 +35,18 @@ Regularizatoin and loss function optimization are both extensible.
 How To Use
 ----------
 
-To use PyFactorizationMachines, first import the *pyfm* module.
+To use PyFactorizationMachines, first import the *pyfms.models* module.
 
-    >>> import pyfm
+    >>> import pyfms.models
     
 ### Initializing a Model
 
-A factorization machine is created with *FactorizationMachineClassifier* for a binary classification problem, or
-*FactorizationMachineRegressor* for regression. The constructors require an argument specifying the number of features.
+A factorization machine is created with *pyfms.models.Classifier* for a binary classification problem, or
+*pyfms.models.Regressor* for regression. The constructors require an argument specifying the number of features.
 
-    >>> model = pyfm.FactorizationMachineRegressor(20)
+    >>> model = pyfms.models.Regressor(20)
 
-FactorizationMachineRegressor and FactorizationMachineClassifier both take the following arguments:
+pyfms.models.Regressor and pyfms.models.Classifier both take the following arguments:
 
 * **feature_count** The dimensionality of each data point.
 * **k** (optional; defaults to 8) Dimensionality of the factorization of pairwise interactions.
@@ -78,42 +78,40 @@ to regularize the loss function. For example, see L2, which implements L2 regula
 * **memory** (optional; defaults to True) If False, the last set of weights from training will be retained. If True,
 the set of weights that minimized the loss function (across epochs) will be retained.
 
-### Predicting with a FactorizationMachine
+### Predicting with a Factorization Machine
 
-For regression models, *FactorizationMachineRegressor.predict* can be used to predict the regression targets for a
-dataset X.
+For regression models, *predict* can be used to predict the regression targets for a dataset X.
 
     >>> model.predict(X)
 
-For binary classification models, *FactorizationMachineClassifier.predict* can be used to predict the class targets for
-a dataset X. *FactorizationMachineClassifier.predict_proba* returns the class 1 probability for a dataset X.
+For binary classification models, *predict* can be used to predict the class targets for a dataset X. *predict_proba*
+returns the class 1 probability for a dataset X.
 
     >>> model.predict(X)
     >>> model.predict_proba(X)
 
-*FactorizationMachineRegressor.predict*, *FactorizationMachineClassifier.predict*, and
-*FactorizationMachineClassifier.predict_proba* take the following argument:
+*predict* and *predict_proba* take the following argument:
 
 * **X** An *n-by-d* numpy.ndarray with data. The rows correspond to observations, and the columns correspond to
 dimensions.
 
-### Saving a FactorizationMachine
+### Saving a Factorization Machine
 
 A factorization machine is saved with the *save* method, which takes as input a filename.
 
     >>> model.save("/path/to/save/model.mdl")
 
-*save* takes the following arguments:
+*save* takes the following argument:
 
 * **path** The file path for saving the model.
 
-### Loading a Saved FactorizationMachine
+### Loading a Saved Factorization Machine
 
 A saved factorization machine can be loaded with the *load* top-level function.
 
     >>> fm = pyfm.load("/path/to/model.mdl")
 
-*load* takes the following arguments:
+*load* takes the following argument:
 
 * **path** The file path for loading the saved model.
 
