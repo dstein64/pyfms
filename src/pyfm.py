@@ -12,7 +12,7 @@ _Weights = namedtuple('_Weights', ['w0', 'w1', 'v'])
 class _Optimizer(object):
     __metaclass__ = abc.ABCMeta
     @abc.abstractmethod
-    def updates(self, cost, params):
+    def update(self, cost, params):
         raise NotImplementedError()
 
 
@@ -25,7 +25,7 @@ class RMSProp(_Optimizer):
         self.rho = rho
         self.epsilon = epsilon
 
-    def updates(self, loss, params):
+    def update(self, loss, params):
         updates = []
         grads = T.grad(cost=loss, wrt=params)
         lr, rho, epsilon = 0.001, 0.9, 1e-6
@@ -51,6 +51,26 @@ class SGD(_Optimizer):
         return updates
 
 
+class _Regularizer(object):
+    __metaclass__ = abc.ABCMeta
+    @abc.abstractmethod
+    def regularize(self, loss, w0, w1, v):
+        raise NotImplementedError()
+
+
+class L2(_Regularizer):
+    def __init__(self, beta_w0 = 0.0, beta_w1 = 0.0, beta_v = 0.0):
+        self.beta_w0 = beta_w0
+        self.beta_w1 = beta_w1
+        self.beta_v = beta_v
+
+    def regularize(self, loss, w0, w1, v):
+        penalty = (self.beta_w0 * w0) \
+                  + (self.beta_w1 * T.mean(w1 ** 2)) \
+                  + (self.beta_v * T.mean(v ** 2))
+        return loss + penalty
+
+
 class _FactorizationMachine(object):
     """Base class for factorization machines.
 
@@ -62,7 +82,8 @@ class _FactorizationMachine(object):
                  classifier = False,
                  k = 8,
                  stdev = 0.1,
-                 optimizer = RMSProp()):
+                 optimizer = RMSProp(),
+                 regularizer = None):
         self.classifier = classifier
         d = feature_count
 
@@ -73,8 +94,6 @@ class _FactorizationMachine(object):
         X = T.matrix() # design matrix
         y = T.vector() # response
         s = T.vector() # sample weights
-        beta_w1 = T.scalar()
-        beta_v = T.scalar()
 
         # ************************************************************
         # * Model Parameters
@@ -97,9 +116,9 @@ class _FactorizationMachine(object):
         # The formula for pairwise interactions is from the bottom left
         # of page 997 of Rendle 2010, "Factorization Machines."
         # This version scales linearly in k and d, as opposed to O(d^2).
-        interactions = 0.5 * T.sum((T.dot(X, T.transpose(self.v)) ** 2) - \
-                                   T.dot(X ** 2, T.transpose(self.v ** 2)), axis=1)
-        y_hat = T.addbroadcast(self.w0,0) + T.dot(X, self.w1) + interactions
+        interactions = 0.5 * T.sum((T.dot(X, T.transpose(self.v)) ** 2) \
+                                   - T.dot(X ** 2, T.transpose(self.v ** 2)), axis=1)
+        y_hat = self.w0[0] + T.dot(X, self.w1) + interactions
         if self.classifier:
             y_hat = T.nnet.sigmoid(y_hat)
 
@@ -109,22 +128,23 @@ class _FactorizationMachine(object):
         else:
             error = (y - y_hat)**2
         mean_error = T.true_div(T.sum(T.mul(error, s)), T.sum(s))
+        loss = mean_error
         # regularization
-        L2 = beta_w1 * T.mean(self.w1 ** 2) + beta_v * T.mean(self.v ** 2)
-        loss = mean_error + L2
+        if regularizer is not None:
+            loss = regularizer.regularize(loss, self.w0[0], self.w1, self.v)
 
         # ************************************************************
         # * Learning
         # ************************************************************
 
         params = [self.w0, self.w1, self.v]
-        updates = optimizer.updates(loss, params)
+        updates = optimizer.update(loss, params)
 
         self.theano_train = theano.function(
-            inputs=[X, y, s, beta_w1, beta_v], outputs=loss, updates=updates, allow_input_downcast=True)
+            inputs=[X, y, s], outputs=loss, updates=updates, allow_input_downcast=True)
 
         self.theano_cost = theano.function(
-            inputs=[X, y, s, beta_w1, beta_v], outputs=loss, allow_input_downcast=True)
+            inputs=[X, y, s], outputs=loss, allow_input_downcast=True)
 
         # ************************************************************
         # * Prediction
@@ -178,10 +198,8 @@ class _FactorizationMachine(object):
                 stop = min(start + batch_size, n)
                 self.theano_train(X[start:stop],
                                   y[start:stop],
-                                  sample_weight[start:stop],
-                                  beta_w1,
-                                  beta_v)
-            current_loss = self.theano_cost(X, y, sample_weight, beta_w1, beta_v)
+                                  sample_weight[start:stop])
+            current_loss = self.theano_cost(X, y, sample_weight)
             if not np.isfinite(current_loss):
                 raise ArithmeticError()
             if current_loss < min_loss:
