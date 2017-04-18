@@ -1,39 +1,5 @@
-﻿PyFactorizationMachines
-=======================
-
-A Theano-based Python implementation of factorization machines, based on the model presented in *Factorization Machines*
-(Rendle 2010).
-
-Dependencies
-------------
-
-PyFactorizationMachines requires Python 2.7 with numpy and theano.
-
-The packages can be installed with pip.
-
-    $ pip install numpy theano
-    
-Alternatively, these may be available through your operating system's package manager, or a package manager for your
-Python environment (e.g., conda).
-
-Additionally, scikit-learn is required for running example.py, which shows example usage of PyFactorizationMachines.
-
-    $ pip install scikit-learn
-
-Features
---------
-
-(Rendle 2010) suggests stochastic gradient descent for optimizing the loss function. This implementation offers
-various algorithms for searching for the optimal parameters.
-
-For binary classification, this implementation uses a logit function combined with a cross entropy loss function.
-
-This implementation offers sample weighting.
-
-Regularizatoin and loss function optimization are both extensible.
-
-How To Use
-----------
+﻿Documentation
+-------------
 
 To use PyFactorizationMachines, first import the *pyfms.models* module.
 
@@ -115,21 +81,3 @@ A saved factorization machine can be loaded with the *load_weights* method.
 *load_weights* takes the following argument:
 
 * **path** The file path for loading the model weights.
-
-License
--------
-
-PyFactorizationMachines has an [MIT License](https://en.wikipedia.org/wiki/MIT_License).
-
-See [LICENSE](LICENSE).
-
-Acknowledgments
----------------
-
-RMSprop code is from [Newmu/Theano-Tutorials](https://github.com/Newmu/Theano-Tutorials/blob/master/4_modern_net.py).
-
-References
-----------
-
-Rendle, S. 2010. “Factorization Machines.” In 2010 IEEE 10th International Conference on Data Mining (ICDM), 995–1000.
-doi:10.1109/ICDM.2010.127.
