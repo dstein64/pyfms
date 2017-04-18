@@ -50,6 +50,23 @@ class SGD(_Optimizer):
         return updates
 
 
+class _ErrorFunction(object):
+    __metaclass__ = abc.ABCMeta
+    @abc.abstractmethod
+    def apply(self, y, y_hat):
+        raise NotImplementedError()
+
+
+class SquaredError(_ErrorFunction):
+    def apply(self, y, y_hat):
+        return (y - y_hat)**2
+
+
+class BinaryCrossEntropy(_ErrorFunction):
+    def apply(self, y, y_hat):
+        return T.nnet.binary_crossentropy(y_hat, y)
+
+
 class _Regularizer(object):
     __metaclass__ = abc.ABCMeta
     @abc.abstractmethod
@@ -70,6 +87,24 @@ class L2(_Regularizer):
         return loss + penalty
 
 
+# This is used for transforming PyFactorizationMachine's output
+class _Transformer(object):
+    __metaclass__ = abc.ABCMeta
+    @abc.abstractmethod
+    def transform(self, y_hat):
+        raise NotImplementedError()
+
+
+class Linear(_Transformer):
+    def transform(self, y_hat):
+        return y_hat
+
+
+class Sigmoid(_Transformer):
+    def transform(self, y_hat):
+        return T.nnet.sigmoid(y_hat)
+
+
 class _FactorizationMachine(object):
     """Base class for factorization machines.
 
@@ -78,12 +113,12 @@ class _FactorizationMachine(object):
     """
     def __init__(self,
                  feature_count,
-                 classifier = False,
                  k = 8,
                  stdev = 0.1,
                  optimizer = RMSProp(),
-                 regularizer = None):
-        self.classifier = classifier
+                 regularizer = None,
+                 transformer = Linear(),
+                 error_function = SquaredError()):
         d = feature_count
 
         # ************************************************************
@@ -118,23 +153,19 @@ class _FactorizationMachine(object):
         interactions = 0.5 * T.sum((T.dot(X, T.transpose(self.v)) ** 2) \
                                    - T.dot(X ** 2, T.transpose(self.v ** 2)), axis=1)
         y_hat = self.w0[0] + T.dot(X, self.w1) + interactions
-        if self.classifier:
-            y_hat = T.nnet.sigmoid(y_hat)
+        y_hat = transformer.transform(y_hat)
+
+        # ************************************************************
+        # * Learning
+        # ************************************************************
 
         # *** Loss Function ***
-        if self.classifier:
-            error = T.nnet.binary_crossentropy(y_hat, y)
-        else:
-            error = (y - y_hat)**2
+        error = error_function.apply(y, y_hat)
         mean_error = T.true_div(T.sum(T.mul(error, s)), T.sum(s))
         loss = mean_error
         # regularization
         if regularizer is not None:
             loss = regularizer.regularize(loss, self.w0[0], self.w1, self.v)
-
-        # ************************************************************
-        # * Learning
-        # ************************************************************
 
         params = [self.w0, self.w1, self.v]
         updates = optimizer.update(loss, params)
@@ -209,22 +240,31 @@ class _FactorizationMachine(object):
         self.set_weights(weights)
 
 
-    def save(self, path):
+    def save_weights(self, path):
         with open(path, 'wb') as f:
             w0, w1, v = self.get_weights()
             np.savez(
-                f, classifier=self.classifier, w0=w0, w1=w1, v=v)
+                f, w0=w0, w1=w1, v=v)
+
+
+    def load_weights(self, path):
+        meta = np.load(path)
+        weights = _Weights(*[meta[key] for key in ['w0', 'w1', 'v']])
+        self.set_weights(weights)
 
 
 class FactorizationMachineClassifier(_FactorizationMachine, object):
     """A factorization machine classifier."""
     def __init__(self, *args, **kwargs):
-        kwargs['classifier'] = True
+        transformer = Sigmoid()
+        error_function = BinaryCrossEntropy()
+        kwargs['transformer'] = transformer
+        kwargs['error_function'] = error_function
         super(FactorizationMachineClassifier, self).__init__(*args, **kwargs)
 
 
     def predict(self, X):
-        return (self.theano_predict(X) > 0.5).astype(np.int)
+        return (self.predict_proba(X) > 0.5).astype(np.int)
 
 
     def predict_proba(self, X):
@@ -234,20 +274,12 @@ class FactorizationMachineClassifier(_FactorizationMachine, object):
 class FactorizationMachineRegressor(_FactorizationMachine, object):
     """A factorization machine regressor."""
     def __init__(self, *args, **kwargs):
-        kwargs['classifier'] = False
+        transformer = Linear()
+        error_function = SquaredError()
+        kwargs['transformer'] = transformer
+        kwargs['error_function'] = error_function
         super(FactorizationMachineRegressor, self).__init__(*args, **kwargs)
 
 
     def predict(self, X):
         return self.theano_predict(X)
-
-
-def load(path):
-    meta = np.load(path)
-    classifier = meta['classifier']
-    weights = _Weights(*[meta[key] for key in ['w0', 'w1', 'v']])
-    k, d = weights.v.shape
-    cls = FactorizationMachineClassifier if classifier else FactorizationMachineRegressor
-    model = cls(d, k=k)
-    model.set_weights(weights)
-    return model

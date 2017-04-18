@@ -38,32 +38,28 @@ print '\n*** Binary Classification Example ***'
 X, y = datasets.load_breast_cancer(return_X_y=True)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
-factorization_machine_regressor = pyfm.FactorizationMachineClassifier(X.shape[1])
-factorization_machine_regressor.fit(X_train, y_train, verbose=False, nb_epoch=5000)
+factorization_machine_classifier = pyfm.FactorizationMachineClassifier(X.shape[1])
+factorization_machine_classifier.fit(X_train, y_train, verbose=False, nb_epoch=5000)
 print '  Factorization Machine Error: {}'.format(
-    error_score(y_test, factorization_machine_regressor.predict(X_test)))
+    error_score(y_test, factorization_machine_classifier.predict(X_test)))
 
 logistic_regression = LogisticRegression()
 logistic_regression.fit(X, y)
 print '  Logistic Regression Error: {}'.format(
     error_score(y_test, logistic_regression.predict(X_test)))
 
-# multi-class classification
-
-# TODO: an example combining binary classifiers to make a multi-class factorization machine
-# (e.g., one-versus-rest binary classifiers)
-
-#X, y = datasets.load_iris(return_X_y=True)
-
 print '\n*** Saving Model Example ***'
 
-# Save the factorization machine regressor that was trained earlier
+# Save the factorization machine classifier that was trained earlier
 
-f = "fm.model"
-factorization_machine_regressor.save(f)
+f = "weights.fm"
+factorization_machine_classifier.save_weights(f)
 print '  model saved'
 
 print '\n*** Loading a Saved Model Example ***'
 
-loaded_factorization_machine_regressor = pyfm.load(f)
+del factorization_machine_classifier
+
+factorization_machine_classifier = pyfm.FactorizationMachineClassifier(X.shape[1])
+factorization_machine_classifier.load_weights(f)
 print '  model loaded'
