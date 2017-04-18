@@ -1,3 +1,4 @@
+import numpy as np
 from sklearn import datasets
 from sklearn.linear_model import LinearRegression
 from sklearn.linear_model import LogisticRegression
@@ -9,6 +10,8 @@ import pyfm
 
 # This shows examples of how to use PyFactorizationMachines. The datasets may not be
 # particularly suitable for using factorization machines.
+
+np.random.seed(0)
 
 
 def error_score(y_true, y_pred):

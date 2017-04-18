@@ -23,13 +23,20 @@ class _FactorizationMachine(object):
         self.classifier = classifier
         d = feature_count
 
-        # *** Symbolic variables ***
-        X = T.matrix()
-        y = T.vector()
+        # ************************************************************
+        # * Symbolic Variables
+        # ************************************************************
+
+        X = T.matrix() # design matrix
+        y = T.vector() # response
+        s = T.vector() # sample weights
         beta_w1 = T.scalar()
         beta_v = T.scalar()
 
-        # *** Model parameters ***
+        # ************************************************************
+        # * Model Parameters
+        # ************************************************************
+
         # bias term (intercept)
         w0_init = np.zeros(1)
         self.w0 = theano.shared(w0_init, allow_downcast=True)
@@ -40,7 +47,10 @@ class _FactorizationMachine(object):
         v_init = stdev * np.random.randn(k, d)
         self.v = theano.shared(v_init, allow_downcast=True)
 
-        # *** The Model ***
+        # ************************************************************
+        # * The Model
+        # ************************************************************
+
         # The formula for pairwise interactions is from the bottom left
         # of page 997 of Rendle 2010, "Factorization Machines."
         # This version scales linearly in k and d, as opposed to O(d^2).
@@ -52,14 +62,18 @@ class _FactorizationMachine(object):
 
         # *** Loss Function ***
         if self.classifier:
-            error = T.mean(T.nnet.binary_crossentropy(y_hat, y))
+            error = T.nnet.binary_crossentropy(y_hat, y)
         else:
-            error = T.mean((y - y_hat)**2)
+            error = (y - y_hat)**2
+        mean_error = T.true_div(T.sum(T.mul(error, s)), T.sum(s))
         # regularization
         L2 = beta_w1 * T.mean(self.w1 ** 2) + beta_v * T.mean(self.v ** 2)
-        loss = error + L2
+        loss = mean_error + L2
 
-        # *** Learning ***
+        # ************************************************************
+        # * Learning
+        # ************************************************************
+
         updates = []
         params = [self.w0, self.w1, self.v]
         grads = T.grad(cost=loss, wrt=params)
@@ -74,12 +88,15 @@ class _FactorizationMachine(object):
             updates.append((p, p - lr * g))
 
         self.theano_train = theano.function(
-            inputs=[X, y, beta_w1, beta_v], outputs=loss, updates=updates, allow_input_downcast=True)
+            inputs=[X, y, s, beta_w1, beta_v], outputs=loss, updates=updates, allow_input_downcast=True)
 
         self.theano_cost = theano.function(
-            inputs=[X, y, beta_w1, beta_v], outputs=loss, allow_input_downcast=True)
+            inputs=[X, y, s, beta_w1, beta_v], outputs=loss, allow_input_downcast=True)
 
-        # *** Prediction ***
+        # ************************************************************
+        # * Prediction
+        # ************************************************************
+
         self.theano_predict = theano.function(
             inputs=[X], outputs=y_hat, allow_input_downcast=True)
 
@@ -97,7 +114,8 @@ class _FactorizationMachine(object):
 
 
     def fit(self, X, y,
-            batch_size=50,
+            sample_weight=None,
+            batch_size=128,
             nb_epoch=10,
             shuffle=True,
             verbose=False,
@@ -109,6 +127,10 @@ class _FactorizationMachine(object):
         n = X.shape[0]
         if batch_size > n:
             batch_size = n
+        if sample_weight is None:
+            sample_weight = np.ones(n)
+        else:
+            sample_weight = (float(n) / np.sum(sample_weight)) * sample_weight
         min_loss = float('inf')
         min_loss_weights = self.get_weights()
         for i in range(nb_epoch):
@@ -120,8 +142,12 @@ class _FactorizationMachine(object):
                 if start >= n:
                     break
                 stop = min(start + batch_size, n)
-                self.theano_train(X[start:stop], y[start:stop], beta_w1, beta_v)
-            current_loss = self.theano_cost(X, y, beta_w1, beta_v)
+                self.theano_train(X[start:stop],
+                                  y[start:stop],
+                                  sample_weight[start:stop],
+                                  beta_w1,
+                                  beta_v)
+            current_loss = self.theano_cost(X, y, sample_weight, beta_w1, beta_v)
             if current_loss < min_loss:
                 min_loss = current_loss
                 min_loss_weights = self.get_weights()
