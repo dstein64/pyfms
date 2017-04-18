@@ -42,7 +42,7 @@ class Model(object):
     """Base class for factorization machines.
 
     Warning: This class should not be used directly. Use derived classes
-    instead (FactorizationMachineClassifier and FactorizationMachineRegressor).
+    instead (pyfms.models.Classifier and pyfms.models.Regressor).
     """
     def __init__(self,
                  feature_count,
