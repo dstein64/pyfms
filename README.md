@@ -20,6 +20,18 @@ Additionally, scikit-learn is required for running example.py, which shows examp
 
     $ pip install scikit-learn
 
+Features
+--------
+
+(Rendle 2010) suggests stochastic gradient descent for optimizing the loss function. This implementation offers
+various algorithms for searching for the optimal parameters.
+
+For binary classification, this implementation uses a logit function combined with a cross entropy loss function.
+
+This implementation offers sample weighting.
+
+Regularizatoin and loss function optimization are both extensible.
+
 How To Use
 ----------
 
@@ -40,6 +52,10 @@ FactorizationMachineRegressor and FactorizationMachineClassifier both take the f
 * **k** (optional; defaults to 8) Dimensionality of the factorization of pairwise interactions.
 * **stdev** (optional; defaults to .01) The standard deviation of the normal distribution used to initialize the
 interaction parameters of the model.
+* **optimizer** (optional; defaults to RMSProp()) An object of a class that extends _Optimizer, which specifies how
+to optimize the loss function.
+* **regularizer** (optional; defaults to None) An object of a class that extends __Regularizer, which specifies how
+to regularize the loss function. For example, see L2, which implements L2 regularization.
     
 ### Training a Model
 
@@ -53,12 +69,13 @@ target values. For binary classification, the target values must be 1 or 0.
 * **X** An *n-by-d* numpy.ndarray with training data. The rows correspond to observations, and the columns correspond to
 dimensions.
 * **y** An numpy.ndarray vector with *n* target values corresponding to the *n* data points in *X*.
+* **sample_weight** An numpy.ndarray vector with *n* sample weights corresponding to the *n* data points in *X*.
 * **batch_size** (optional; defaults to 32) Number of samples per gradient update.
 * **nb_epoch** (optional; defaults to 10)  The number of epochs to train the model.
 * **shuffle** (optional; defaults to True) A flag indicating whether to shuffle the training samples at each epoch.
 * **verbose** (optional; defaults to False) A flag specifying whether to log details to stdout when training the model.
-* **beta_w1** (optional; defaults to 0.0) The amount of L2 regularization for the first-order model parameters.
-* **beta_v** (optional; defaults to 0.0) The amount of L2 regularization for the interaction parameters.
+* **memory** (optional; defaults to True) If False, the last set of weights from training will be retained. If True,
+the set of weights that minimized the loss function (across epochs) will be retained.
 
 ### Predicting with a FactorizationMachine
 
@@ -98,14 +115,6 @@ A saved factorization machine can be loaded with the *load* top-level function.
 *load* takes the following arguments:
 
 * **path** The file path for loading the saved model.
-
-Differences from (Rendle 2010)
-------------------------------
-
-The paper suggests that stochastic gradient descent can be used for learning the parameters of the model. This
-implementation specifically uses *RMSProp*.
-
-For binary classification, this implementation uses a logit function combined with a cross entropy loss function.
 
 License
 -------

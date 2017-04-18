@@ -171,9 +171,7 @@ class _FactorizationMachine(object):
             nb_epoch = 10,
             shuffle = True,
             verbose = False,
-            memory = True,
-            beta_w1 = 0.0,
-            beta_v = 0.0):
+            memory = True):
         """Learns the weights of a factorization machine with mini-batch gradient
         descent. The weights that minimize the loss function (across epochs) are
         retained."""
