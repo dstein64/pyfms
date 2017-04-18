@@ -16,9 +16,9 @@ class Classifier(core.Model, object):
     def fit(self,
             X_train,
             y_train,
+            optimizer=optimizers.RMSProp(),
             **kwargs):
         error_function = errors.BinaryCrossEntropy()
-        optimizer = optimizers.RMSProp()
         super(Classifier, self).fit(
             X_train, y_train, error_function, optimizer, **kwargs)
 
@@ -42,9 +42,9 @@ class Regressor(core.Model, object):
     def fit(self,
             X_train,
             y_train,
+            optimizer=optimizers.RMSProp(),
             **kwargs):
         error_function = errors.SquaredError()
-        optimizer = optimizers.RMSProp()
         super(Regressor, self).fit(
             X_train, y_train, error_function, optimizer, **kwargs)
 
