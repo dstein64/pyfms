@@ -29,7 +29,7 @@ class RMSProp(_Optimizer):
         updates = []
         grads = T.grad(cost=loss, wrt=params)
         for p, g in zip(params, grads):
-            acc = theano.shared(p.get_value() * 0.)
+            acc = theano.shared(p.get_value() * 0., allow_downcast=True)
             acc_new = self.rho * acc + (1 - self.rho) * g ** 2
             gradient_scaling = T.sqrt(acc_new + self.epsilon)
             g = g / gradient_scaling
