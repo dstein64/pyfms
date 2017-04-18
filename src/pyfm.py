@@ -208,7 +208,7 @@ class _FactorizationMachine(object):
             inputs=[self.X, self.y, self.s], outputs=loss, allow_input_downcast=True)
 
         # ************************************************************
-        # * Learn
+        # * Learning (Numeric)
         # ************************************************************
 
         n = X.shape[0]
