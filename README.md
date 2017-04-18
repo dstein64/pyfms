@@ -44,7 +44,7 @@ To use PyFactorizationMachines, first import the *pyfm* module.
 A factorization machine is created with *FactorizationMachineClassifier* for a binary classification problem, or
 *FactorizationMachineRegressor* for regression. The constructors require an argument specifying the number of features.
 
-    >>> model = pyfm.FactorizationMachineRegressor(20)
+    >>> model = pyfm.FactorizationMachineRegressor(feature_count)
 
 FactorizationMachineRegressor and FactorizationMachineClassifier both take the following arguments:
 
@@ -99,23 +99,24 @@ dimensions.
 
 ### Saving a FactorizationMachine
 
-A factorization machine is saved with the *save* method, which takes as input a filename.
+A factorization machine is saved with the *save_weights* method, which takes as input a filename.
 
-    >>> model.save("/path/to/save/model.mdl")
+    >>> model.save_weights("/path/to/model.fm")
 
-*save* takes the following arguments:
+*save_weights* takes the following arguments:
 
-* **path** The file path for saving the model.
+* **path** The file path for saving the model weights.
 
 ### Loading a Saved FactorizationMachine
 
-A saved factorization machine can be loaded with the *load* top-level function.
+A saved factorization machine can be loaded with the *load_weights* method.
+    
+    >>> fm = pyfm.FactorizationMachineRegressor(feature_count)
+    >>> fm.load_weights("/path/to/model.fm")
 
-    >>> fm = pyfm.load("/path/to/model.mdl")
+*load_weights* takes the following arguments:
 
-*load* takes the following arguments:
-
-* **path** The file path for loading the saved model.
+* **path** The file path for loading the model weights.
 
 License
 -------
