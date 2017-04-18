@@ -1,3 +1,4 @@
+import abc
 import itertools
 from collections import namedtuple
 
@@ -5,8 +6,49 @@ import numpy as np
 import theano
 from theano import tensor as T
 
-
 _Weights = namedtuple('_Weights', ['w0', 'w1', 'v'])
+
+
+class _Optimizer(object):
+    __metaclass__ = abc.ABCMeta
+    @abc.abstractmethod
+    def updates(self, cost, params):
+        raise NotImplementedError()
+
+
+class RMSProp(_Optimizer):
+    def __init__(self,
+                 lr = 0.001,
+                 rho = 0.9,
+                 epsilon = 1e-6):
+        self.lr = lr
+        self.rho = rho
+        self.epsilon = epsilon
+
+    def updates(self, loss, params):
+        updates = []
+        grads = T.grad(cost=loss, wrt=params)
+        lr, rho, epsilon = 0.001, 0.9, 1e-6
+        for p, g in zip(params, grads):
+            acc = theano.shared(p.get_value() * 0.)
+            acc_new = rho * acc + (1 - rho) * g ** 2
+            gradient_scaling = T.sqrt(acc_new + epsilon)
+            g = g / gradient_scaling
+            updates.append((acc, acc_new))
+            updates.append((p, p - lr * g))
+        return updates
+
+
+class SGD(_Optimizer):
+    def __init__(self, lr = 0.001):
+        self.lr = lr
+
+    def updates(self, loss, params):
+        updates = []
+        grads = T.grad(cost=loss, wrt=params)
+        for p, g in zip(params, grads):
+            updates.append((p, p - self.lr * g))
+        return updates
 
 
 class _FactorizationMachine(object):
@@ -17,9 +59,10 @@ class _FactorizationMachine(object):
     """
     def __init__(self,
                  feature_count,
-                 classifier=False,
+                 classifier = False,
                  k = 8,
-                 stdev = 0.1):
+                 stdev = 0.1,
+                 optimizer = RMSProp()):
         self.classifier = classifier
         d = feature_count
 
@@ -74,18 +117,8 @@ class _FactorizationMachine(object):
         # * Learning
         # ************************************************************
 
-        updates = []
         params = [self.w0, self.w1, self.v]
-        grads = T.grad(cost=loss, wrt=params)
-        # RMSProp
-        lr, rho, epsilon = 0.001, 0.9, 1e-6
-        for p, g in zip(params, grads):
-            acc = theano.shared(p.get_value() * 0.)
-            acc_new = rho * acc + (1 - rho) * g ** 2
-            gradient_scaling = T.sqrt(acc_new + epsilon)
-            g = g / gradient_scaling
-            updates.append((acc, acc_new))
-            updates.append((p, p - lr * g))
+        updates = optimizer.updates(loss, params)
 
         self.theano_train = theano.function(
             inputs=[X, y, s, beta_w1, beta_v], outputs=loss, updates=updates, allow_input_downcast=True)
@@ -114,13 +147,14 @@ class _FactorizationMachine(object):
 
 
     def fit(self, X, y,
-            sample_weight=None,
-            batch_size=128,
-            nb_epoch=10,
-            shuffle=True,
-            verbose=False,
-            beta_w1=0.0,
-            beta_v=0.0):
+            sample_weight = None,
+            batch_size = 128,
+            nb_epoch = 10,
+            shuffle = True,
+            verbose = False,
+            memory = True,
+            beta_w1 = 0.0,
+            beta_v = 0.0):
         """Learns the weights of a factorization machine with mini-batch gradient
         descent. The weights that minimize the loss function (across epochs) are
         retained."""
@@ -148,13 +182,16 @@ class _FactorizationMachine(object):
                                   beta_w1,
                                   beta_v)
             current_loss = self.theano_cost(X, y, sample_weight, beta_w1, beta_v)
+            if not np.isfinite(current_loss):
+                raise ArithmeticError()
             if current_loss < min_loss:
                 min_loss = current_loss
                 min_loss_weights = self.get_weights()
             if verbose:
                 print 'Epoch {}/{}'.format(i+1, nb_epoch)
                 print ' loss: {}, min_loss: {}'.format(current_loss, min_loss)
-        self.set_weights(min_loss_weights)
+        weights = min_loss_weights if memory else self.get_weights()
+        self.set_weights(weights)
 
 
     def save(self, path):
