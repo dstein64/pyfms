@@ -115,19 +115,16 @@ class _FactorizationMachine(object):
                  feature_count,
                  k = 8,
                  stdev = 0.1,
-                 optimizer = RMSProp(),
-                 regularizer = None,
-                 transformer = Linear(),
-                 error_function = SquaredError()):
+                 transformer=Linear()):
         d = feature_count
 
         # ************************************************************
         # * Symbolic Variables
         # ************************************************************
 
-        X = T.matrix() # design matrix
-        y = T.vector() # response
-        s = T.vector() # sample weights
+        self.X = T.matrix() # design matrix
+        self.y = T.vector() # response
+        self.s = T.vector() # sample weights
 
         # ************************************************************
         # * Model Parameters
@@ -150,38 +147,17 @@ class _FactorizationMachine(object):
         # The formula for pairwise interactions is from the bottom left
         # of page 997 of Rendle 2010, "Factorization Machines."
         # This version scales linearly in k and d, as opposed to O(d^2).
-        interactions = 0.5 * T.sum((T.dot(X, T.transpose(self.v)) ** 2) \
-                                   - T.dot(X ** 2, T.transpose(self.v ** 2)), axis=1)
-        y_hat = self.w0[0] + T.dot(X, self.w1) + interactions
-        y_hat = transformer.transform(y_hat)
-
-        # ************************************************************
-        # * Learning
-        # ************************************************************
-
-        # *** Loss Function ***
-        error = error_function.apply(y, y_hat)
-        mean_error = T.true_div(T.sum(T.mul(error, s)), T.sum(s))
-        loss = mean_error
-        # regularization
-        if regularizer is not None:
-            loss = regularizer.regularize(loss, self.w0[0], self.w1, self.v)
-
-        params = [self.w0, self.w1, self.v]
-        updates = optimizer.update(loss, params)
-
-        self.theano_train = theano.function(
-            inputs=[X, y, s], outputs=loss, updates=updates, allow_input_downcast=True)
-
-        self.theano_cost = theano.function(
-            inputs=[X, y, s], outputs=loss, allow_input_downcast=True)
+        interactions = 0.5 * T.sum((T.dot(self.X, T.transpose(self.v)) ** 2) \
+                                   - T.dot(self.X ** 2, T.transpose(self.v ** 2)), axis=1)
+        self.y_hat = self.w0[0] + T.dot(self.X, self.w1) + interactions
+        self.y_hat = transformer.transform(self.y_hat)
 
         # ************************************************************
         # * Prediction
         # ************************************************************
 
         self.theano_predict = theano.function(
-            inputs=[X], outputs=y_hat, allow_input_downcast=True)
+            inputs=[self.X], outputs=self.y_hat, allow_input_downcast=True)
 
 
     def get_weights(self):
@@ -197,6 +173,9 @@ class _FactorizationMachine(object):
 
 
     def fit(self, X, y,
+            optimizer=RMSProp(),
+            regularizer=None,
+            error_function=SquaredError(),
             sample_weight = None,
             batch_size = 128,
             nb_epoch = 10,
@@ -206,6 +185,32 @@ class _FactorizationMachine(object):
         """Learns the weights of a factorization machine with mini-batch gradient
         descent. The weights that minimize the loss function (across epochs) are
         retained."""
+
+        # ************************************************************
+        # * Learning (Symbolic)
+        # ************************************************************
+
+        # *** Loss Function ***
+        error = error_function.apply(self.y, self.y_hat)
+        mean_error = T.true_div(T.sum(T.mul(error, self.s)), T.sum(self.s))
+        loss = mean_error
+        # regularization
+        if regularizer is not None:
+            loss = regularizer.regularize(loss, self.w0[0], self.w1, self.v)
+
+        params = [self.w0, self.w1, self.v]
+        updates = optimizer.update(loss, params)
+
+        theano_train = theano.function(
+            inputs=[self.X, self.y, self.s], outputs=loss, updates=updates, allow_input_downcast=True)
+
+        theano_cost = theano.function(
+            inputs=[self.X, self.y, self.s], outputs=loss, allow_input_downcast=True)
+
+        # ************************************************************
+        # * Learn
+        # ************************************************************
+
         n = X.shape[0]
         if batch_size > n:
             batch_size = n
@@ -224,10 +229,10 @@ class _FactorizationMachine(object):
                 if start >= n:
                     break
                 stop = min(start + batch_size, n)
-                self.theano_train(X[start:stop],
+                theano_train(X[start:stop],
                                   y[start:stop],
                                   sample_weight[start:stop])
-            current_loss = self.theano_cost(X, y, sample_weight)
+            current_loss = theano_cost(X, y, sample_weight)
             if not np.isfinite(current_loss):
                 raise ArithmeticError()
             if current_loss < min_loss:
@@ -257,11 +262,13 @@ class FactorizationMachineClassifier(_FactorizationMachine, object):
     """A factorization machine classifier."""
     def __init__(self, *args, **kwargs):
         transformer = Sigmoid()
-        error_function = BinaryCrossEntropy()
         kwargs['transformer'] = transformer
-        kwargs['error_function'] = error_function
         super(FactorizationMachineClassifier, self).__init__(*args, **kwargs)
 
+    def fit(self, *args, **kwargs):
+        error_function = BinaryCrossEntropy()
+        kwargs['error_function'] = error_function
+        super(FactorizationMachineClassifier, self).fit(*args, **kwargs)
 
     def predict(self, X):
         return (self.predict_proba(X) > 0.5).astype(np.int)
@@ -275,10 +282,13 @@ class FactorizationMachineRegressor(_FactorizationMachine, object):
     """A factorization machine regressor."""
     def __init__(self, *args, **kwargs):
         transformer = Linear()
-        error_function = SquaredError()
         kwargs['transformer'] = transformer
-        kwargs['error_function'] = error_function
         super(FactorizationMachineRegressor, self).__init__(*args, **kwargs)
+
+    def fit(self, *args, **kwargs):
+        error_function = SquaredError()
+        kwargs['error_function'] = error_function
+        super(FactorizationMachineRegressor, self).fit(*args, **kwargs)
 
 
     def predict(self, X):
