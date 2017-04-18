@@ -172,7 +172,7 @@ class _FactorizationMachine(object):
         self.v.set_value(weights.v)
 
 
-    def fit(self, X, y,
+    def fit(self, X_train, y_train,
             error_function,
             optimizer = RMSProp(),
             regularizer = None,
@@ -211,7 +211,7 @@ class _FactorizationMachine(object):
         # * Learning (Numeric)
         # ************************************************************
 
-        n = X.shape[0]
+        n = X_train.shape[0]
         if batch_size > n:
             batch_size = n
         if sample_weight is None:
@@ -224,15 +224,15 @@ class _FactorizationMachine(object):
             if shuffle:
                 indices = np.arange(n)
                 np.random.shuffle(indices)
-                X, y = X[indices], y[indices]
+                X_train, y_train = X_train[indices], y_train[indices]
             for start in itertools.count(0, batch_size):
                 if start >= n:
                     break
                 stop = min(start + batch_size, n)
-                theano_train(X[start:stop],
-                             y[start:stop],
+                theano_train(X_train[start:stop],
+                             y_train[start:stop],
                              sample_weight[start:stop])
-            current_loss = theano_cost(X, y, sample_weight)
+            current_loss = theano_cost(X_train, y_train, sample_weight)
             if not np.isfinite(current_loss):
                 raise ArithmeticError()
             if current_loss < min_loss:
@@ -266,10 +266,10 @@ class FactorizationMachineClassifier(_FactorizationMachine, object):
             feature_count, transformer, **kwargs)
 
 
-    def fit(self, X, y, **kwargs):
+    def fit(self, X_train, y_train, **kwargs):
         error_function = BinaryCrossEntropy()
         super(FactorizationMachineClassifier, self).fit(
-            X, y, error_function, **kwargs)
+            X_train, y_train, error_function, **kwargs)
 
 
     def predict(self, X):
@@ -288,10 +288,10 @@ class FactorizationMachineRegressor(_FactorizationMachine, object):
             feature_count, transformer, **kwargs)
 
 
-    def fit(self, X, y, **kwargs):
+    def fit(self, X_train, y_train, **kwargs):
         error_function = SquaredError()
         super(FactorizationMachineRegressor, self).fit(
-            X, y, error_function, **kwargs)
+            X_train, y_train, error_function, **kwargs)
 
 
     def predict(self, X):
