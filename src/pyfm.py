@@ -113,9 +113,9 @@ class _FactorizationMachine(object):
     """
     def __init__(self,
                  feature_count,
+                 transformer,
                  k = 8,
-                 stdev = 0.1,
-                 transformer=Linear()):
+                 stdev = 0.1):
         d = feature_count
 
         # ************************************************************
@@ -173,9 +173,9 @@ class _FactorizationMachine(object):
 
 
     def fit(self, X, y,
-            optimizer=RMSProp(),
-            regularizer=None,
-            error_function=SquaredError(),
+            error_function,
+            optimizer = RMSProp(),
+            regularizer = None,
             sample_weight = None,
             batch_size = 128,
             nb_epoch = 10,
@@ -230,8 +230,8 @@ class _FactorizationMachine(object):
                     break
                 stop = min(start + batch_size, n)
                 theano_train(X[start:stop],
-                                  y[start:stop],
-                                  sample_weight[start:stop])
+                             y[start:stop],
+                             sample_weight[start:stop])
             current_loss = theano_cost(X, y, sample_weight)
             if not np.isfinite(current_loss):
                 raise ArithmeticError()
@@ -261,14 +261,14 @@ class _FactorizationMachine(object):
 class FactorizationMachineClassifier(_FactorizationMachine, object):
     """A factorization machine classifier."""
     def __init__(self, *args, **kwargs):
-        transformer = Sigmoid()
-        kwargs['transformer'] = transformer
+        args = args + (Sigmoid(),)
         super(FactorizationMachineClassifier, self).__init__(*args, **kwargs)
 
+
     def fit(self, *args, **kwargs):
-        error_function = BinaryCrossEntropy()
-        kwargs['error_function'] = error_function
+        args = args + (BinaryCrossEntropy(),)
         super(FactorizationMachineClassifier, self).fit(*args, **kwargs)
+
 
     def predict(self, X):
         return (self.predict_proba(X) > 0.5).astype(np.int)
@@ -281,13 +281,12 @@ class FactorizationMachineClassifier(_FactorizationMachine, object):
 class FactorizationMachineRegressor(_FactorizationMachine, object):
     """A factorization machine regressor."""
     def __init__(self, *args, **kwargs):
-        transformer = Linear()
-        kwargs['transformer'] = transformer
+        args = args + (Linear(),)
         super(FactorizationMachineRegressor, self).__init__(*args, **kwargs)
 
+
     def fit(self, *args, **kwargs):
-        error_function = SquaredError()
-        kwargs['error_function'] = error_function
+        args = args + (SquaredError(),)
         super(FactorizationMachineRegressor, self).fit(*args, **kwargs)
 
 

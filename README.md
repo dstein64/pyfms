@@ -52,10 +52,6 @@ FactorizationMachineRegressor and FactorizationMachineClassifier both take the f
 * **k** (optional; defaults to 8) Dimensionality of the factorization of pairwise interactions.
 * **stdev** (optional; defaults to .01) The standard deviation of the normal distribution used to initialize the
 interaction parameters of the model.
-* **optimizer** (optional; defaults to RMSProp()) An object of a class that extends _Optimizer, which specifies how
-to optimize the loss function.
-* **regularizer** (optional; defaults to None) An object of a class that extends __Regularizer, which specifies how
-to regularize the loss function. For example, see L2, which implements L2 regularization.
     
 ### Training a Model
 
@@ -69,7 +65,12 @@ target values. For binary classification, the target values must be 1 or 0.
 * **X** An *n-by-d* numpy.ndarray with training data. The rows correspond to observations, and the columns correspond to
 dimensions.
 * **y** An numpy.ndarray vector with *n* target values corresponding to the *n* data points in *X*.
-* **sample_weight** An numpy.ndarray vector with *n* sample weights corresponding to the *n* data points in *X*.
+* **optimizer** (optional; defaults to RMSProp()) An object of a class that extends _Optimizer, which specifies how
+to optimize the loss function.
+* **regularizer** (optional; defaults to None) An object of a class that extends __Regularizer, which specifies how
+to regularize the loss function. For example, see L2, which implements L2 regularization.
+* **sample_weight** (optional; defaults to None) An numpy.ndarray vector with *n* sample weights corresponding to the
+*n* data points in *X*.
 * **batch_size** (optional; defaults to 32) Number of samples per gradient update.
 * **nb_epoch** (optional; defaults to 10)  The number of epochs to train the model.
 * **shuffle** (optional; defaults to True) A flag indicating whether to shuffle the training samples at each epoch.
