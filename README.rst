@@ -4,11 +4,10 @@ the model presented in *Factorization Machines* (Rendle 2010).
 Features
 --------
 
--  Various algorithms for searching for optimal parameters
+-  Sample weighting
 -  For binary classification, this implementation uses a logit function
    combined with a cross entropy loss function.
--  Sample weighting
--  Extensible regularizatoin and loss function optimization
+-  Extensibility of algorithms for: regularization, loss function optimization, and the error function
 
 Installation
 ------------

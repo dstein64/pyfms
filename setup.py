@@ -4,7 +4,7 @@ setup(
   name = 'pyfms',
   packages = ['pyfms'],
   license = 'MIT',
-  version = '0.1.2',
+  version = '0.1.3',
   description = 'A Theano-based Python implementation of Factorization Machines',
   author = 'Daniel Steinberg',
   author_email = 'ds@dannyadam.com',
