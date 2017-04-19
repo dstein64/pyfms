@@ -113,7 +113,7 @@ class Model(object):
             batch_size = 128,
             nb_epoch = 100,
             shuffle = True,
-            verbose = False,
+            verbosity = 0,
             memory = True):
         """Learns the weights of a factorization machine with mini-batch gradient
         descent. The weights that minimize the loss function (across epochs) are
@@ -176,7 +176,7 @@ class Model(object):
             if current_loss < min_loss:
                 min_loss = current_loss
                 min_loss_weights = self.get_weights()
-            if verbose:
+            if verbosity > 0 and ((i+1) % verbosity == 0):
                 print 'Epoch {}/{}'.format(i+1, nb_epoch)
                 print ' loss: {}, min_loss: {}'.format(current_loss, min_loss)
         weights = min_loss_weights if memory else self.get_weights()

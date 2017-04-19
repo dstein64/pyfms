@@ -40,7 +40,8 @@ specifies how to regularize the loss function. For example, see *L2*, which impl
 * **batch_size** (optional; defaults to 128) Number of samples per gradient update.
 * **nb_epoch** (optional; defaults to 100)  The number of epochs to train the model.
 * **shuffle** (optional; defaults to True) A flag indicating whether to shuffle the training samples at each epoch.
-* **verbose** (optional; defaults to False) A flag specifying whether to log details to stdout when training the model.
+* **verbosity** (optional; defaults to 0) An integer specifying the interval between logging details to stdout when
+training the model. A non-positive integer suppresses logging. Increasing the value decreases the rate of output.
 * **memory** (optional; defaults to True) If False, the last set of weights from training will be retained. If True,
 the set of weights that minimized the loss function (across epochs) will be retained.
 
