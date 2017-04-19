@@ -29,7 +29,7 @@ class SGD(core.Optimizer):
     def __init__(self, lr = 0.001):
         self.lr = lr
 
-    def updates(self, loss, params):
+    def update(self, loss, params):
         updates = []
         grads = T.grad(cost=loss, wrt=params)
         for p, g in zip(params, grads):
