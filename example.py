@@ -7,6 +7,7 @@ from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
 
 import pyfms.models
+import pyfms.regularizers
 
 # This shows examples of how to use PyFactorizationMachines. The datasets may not be
 # particularly suitable for using factorization machines.
@@ -18,13 +19,14 @@ def error_score(y_true, y_pred):
     return 1.0 - accuracy_score(y_true, y_pred)
 
 
-print '*** Regression Example ***'
+print '*** Regression Example (with L2 Regularization) ***'
 
 X, y = datasets.load_boston(return_X_y=True)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
-fm_regressor = pyfms.models.Regressor(X.shape[1])
-fm_regressor.fit(X_train, y_train, verbose=False, nb_epoch=5000)
+fm_regressor = pyfms.models.Regressor(X.shape[1], k=2)
+l2_reg = pyfms.regularizers.L2(0, 0, 10)
+fm_regressor.fit(X_train, y_train, verbose=False, nb_epoch=20000, regularizer=l2_reg)
 print '  Factorization Machine MSE: {}'.format(
     mean_squared_error(y_test, fm_regressor.predict(X_test)))
 

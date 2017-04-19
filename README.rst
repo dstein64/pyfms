@@ -13,6 +13,8 @@ Features
 Installation
 ------------
 
+`pyfms <https://pypi.python.org/pypi/pyfms>`__ is available on PyPI, the Python Package Index.
+
 ::
 
     $ pip install pyfms
@@ -21,6 +23,11 @@ Documentation
 -------------
 
 See `documentation.md <https://github.com/dstein64/PyFactorizationMachines/blob/master/documentation.md>`__.
+
+Example Usage
+-------------
+
+See `example.py <https://github.com/dstein64/PyFactorizationMachines/blob/master/example.py>`__.
 
 License
 -------

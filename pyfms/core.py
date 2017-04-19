@@ -6,7 +6,7 @@ import numpy as np
 import theano
 from theano import tensor as T
 
-_Weights = namedtuple('_Weights', ['w0', 'w1', 'v'])
+Weights = namedtuple('Weights', ['w0', 'w1', 'v'])
 
 
 class Optimizer(object):
@@ -95,7 +95,7 @@ class Model(object):
 
     def get_weights(self):
         """Returns a _Weights namedtuple"""
-        return _Weights(*(w.get_value() for w in (self.w0, self.w1, self.v)))
+        return Weights(*(w.get_value() for w in (self.w0, self.w1, self.v)))
 
 
     def set_weights(self, weights):
@@ -135,10 +135,15 @@ class Model(object):
         updates = optimizer.update(loss, params)
 
         theano_train = theano.function(
-            inputs=[self.X, self.y, self.s], outputs=loss, updates=updates, allow_input_downcast=True)
+            inputs=[self.X, self.y, self.s],
+            outputs=loss,
+            updates=updates,
+            allow_input_downcast=True)
 
         theano_cost = theano.function(
-            inputs=[self.X, self.y, self.s], outputs=loss, allow_input_downcast=True)
+            inputs=[self.X, self.y, self.s],
+            outputs=loss,
+            allow_input_downcast=True)
 
         # ************************************************************
         # * Learning (Numeric)
@@ -187,5 +192,5 @@ class Model(object):
 
     def load_weights(self, path):
         meta = np.load(path)
-        weights = _Weights(*[meta[key] for key in ['w0', 'w1', 'v']])
+        weights = Weights(*[meta[key] for key in ['w0', 'w1', 'v']])
         self.set_weights(weights)
