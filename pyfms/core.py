@@ -12,7 +12,7 @@ Weights = namedtuple('Weights', ['w0', 'w1', 'v'])
 class Optimizer(object):
     __metaclass__ = abc.ABCMeta
     @abc.abstractmethod
-    def update(self, cost, params):
+    def update(self, cost, params, epoch):
         raise NotImplementedError()
 
 
@@ -58,6 +58,7 @@ class Model(object):
         self.X = T.matrix() # design matrix
         self.y = T.vector() # response
         self.s = T.vector() # sample weights
+        self.e = T.scalar() # current epoch
 
         # ************************************************************
         # * Model Parameters
@@ -132,16 +133,18 @@ class Model(object):
             loss = regularizer.regularize(loss, self.w0[0], self.w1, self.v)
 
         params = [self.w0, self.w1, self.v]
-        updates = optimizer.update(loss, params)
+        updates = optimizer.update(loss, params, self.e)
 
         theano_train = theano.function(
-            inputs=[self.X, self.y, self.s],
+            inputs=[self.X, self.y, self.s, self.e],
+            on_unused_input='ignore',
             outputs=loss,
             updates=updates,
             allow_input_downcast=True)
 
         theano_cost = theano.function(
             inputs=[self.X, self.y, self.s],
+            on_unused_input='ignore',
             outputs=loss,
             allow_input_downcast=True)
 
@@ -158,7 +161,7 @@ class Model(object):
             sample_weight = (float(n) / np.sum(sample_weight)) * sample_weight
         min_loss = float('inf')
         min_loss_weights = self.get_weights()
-        for i in range(nb_epoch):
+        for epoch in xrange(1, nb_epoch+1):
             if shuffle:
                 indices = np.arange(n)
                 np.random.shuffle(indices)
@@ -169,15 +172,16 @@ class Model(object):
                 stop = min(start + batch_size, n)
                 theano_train(X_train[start:stop],
                              y_train[start:stop],
-                             sample_weight[start:stop])
+                             sample_weight[start:stop],
+                             epoch)
             current_loss = theano_cost(X_train, y_train, sample_weight)
             if not np.isfinite(current_loss):
-                raise ArithmeticError()
+                raise ArithmeticError("Non-finite loss function.")
             if current_loss < min_loss:
                 min_loss = current_loss
                 min_loss_weights = self.get_weights()
-            if verbosity > 0 and ((i+1) % verbosity == 0):
-                print 'Epoch {}/{}'.format(i+1, nb_epoch)
+            if verbosity > 0 and (epoch % verbosity == 0):
+                print 'Epoch {}/{}'.format(epoch, nb_epoch)
                 print ' loss: {}, min_loss: {}'.format(current_loss, min_loss)
         weights = min_loss_weights if memory else self.get_weights()
         self.set_weights(weights)

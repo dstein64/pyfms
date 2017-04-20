@@ -12,7 +12,7 @@ class RMSProp(core.Optimizer):
         self.rho = rho
         self.epsilon = epsilon
 
-    def update(self, loss, params):
+    def update(self, loss, params, epoch):
         updates = []
         grads = T.grad(cost=loss, wrt=params)
         for p, g in zip(params, grads):
@@ -26,12 +26,14 @@ class RMSProp(core.Optimizer):
 
 
 class SGD(core.Optimizer):
-    def __init__(self, lr = 0.001):
+    def __init__(self, lr = 0.001, decay = 0.0):
         self.lr = lr
+        self.decay = decay
 
-    def update(self, loss, params):
+    def update(self, loss, params, epoch):
         updates = []
         grads = T.grad(cost=loss, wrt=params)
         for p, g in zip(params, grads):
-            updates.append((p, p - self.lr * g))
+            lr = self.lr * (1 / (1 + self.decay * (epoch-1)))
+            updates.append((p, p - lr * g))
         return updates
