@@ -25,8 +25,8 @@ X, y = datasets.load_boston(return_X_y=True)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
 fm_regressor = pyfms.models.Regressor(X.shape[1], k=2)
-reg = pyfms.regularizers.L2(0, 0, 10)
-fm_regressor.fit(X_train, y_train, nb_epoch=20000, regularizer=reg)
+reg = pyfms.regularizers.L2(0, 0, .01)
+fm_regressor.fit(X_train, y_train, nb_epoch=50000, regularizer=reg)
 print '  Factorization Machine MSE: {}'.format(
     mean_squared_error(y_test, fm_regressor.predict(X_test)))
 
@@ -41,7 +41,7 @@ X, y = datasets.load_breast_cancer(return_X_y=True)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
 fm_classifier = pyfms.models.Classifier(X.shape[1])
-fm_classifier.fit(X_train, y_train, verbosity=1000, nb_epoch=5000)
+fm_classifier.fit(X_train, y_train, verbosity=2000, nb_epoch=10000)
 print '  Factorization Machine Error: {}'.format(
     error_score(y_test, fm_classifier.predict(X_test)))
 

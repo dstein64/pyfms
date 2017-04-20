@@ -41,6 +41,9 @@ Acknowledgments
 RMSprop code is from
 `Newmu/Theano-Tutorials <https://github.com/Newmu/Theano-Tutorials/blob/master/4_modern_net.py>`__.
 
+Adam code is from
+`Newmu/dcgan_code <https://github.com/Newmu/dcgan_code/blob/master/lib/updates.py>`__.
+
 References
 ----------
 

@@ -16,7 +16,7 @@ class Classifier(core.Model, object):
     def fit(self,
             X_train,
             y_train,
-            optimizer=optimizers.RMSProp(),
+            optimizer=optimizers.Adam(),
             **kwargs):
         error_function = errors.BinaryCrossEntropy()
         super(Classifier, self).fit(
@@ -42,7 +42,7 @@ class Regressor(core.Model, object):
     def fit(self,
             X_train,
             y_train,
-            optimizer=optimizers.RMSProp(),
+            optimizer=optimizers.Adam(),
             **kwargs):
         error_function = errors.SquaredError()
         super(Regressor, self).fit(
