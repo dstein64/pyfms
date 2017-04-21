@@ -8,6 +8,7 @@ with open(version_txt, 'r') as f:
 setup(
   name = 'pyfms',
   packages = ['pyfms'],
+  package_data = {'pyfms': ['version.txt']},
   license = 'MIT',
   version = version,
   description = 'A Theano-based Python implementation of Factorization Machines',
