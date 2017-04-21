@@ -8,11 +8,13 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
 
-import pyfms.models
+import pyfms
 import pyfms.regularizers
 
 # This shows examples of how to use PyFactorizationMachines. The datasets may not be
 # particularly suitable for using factorization machines.
+
+print('pyfms {}'.format(pyfms.__version__))
 
 np.random.seed(0)
 
@@ -21,12 +23,12 @@ def error_score(y_true, y_pred):
     return 1.0 - accuracy_score(y_true, y_pred)
 
 
-print('*** Regression Example (with L2 Regularization) ***')
+print('\n*** Regression Example (with L2 Regularization) ***')
 
 X, y = datasets.load_boston(return_X_y=True)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
-fm_regressor = pyfms.models.Regressor(X.shape[1], k=2)
+fm_regressor = pyfms.Regressor(X.shape[1], k=2)
 reg = pyfms.regularizers.L2(0, 0, .01)
 fm_regressor.fit(X_train, y_train, nb_epoch=50000, regularizer=reg)
 print('  Factorization Machine MSE: {}'.format(
@@ -42,7 +44,7 @@ print('\n*** Binary Classification Example (with verbose output) ***')
 X, y = datasets.load_breast_cancer(return_X_y=True)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
-fm_classifier = pyfms.models.Classifier(X.shape[1])
+fm_classifier = pyfms.Classifier(X.shape[1])
 fm_classifier.fit(X_train, y_train, verbosity=2000, nb_epoch=10000)
 print('  Factorization Machine Error: {}'.format(
     error_score(y_test, fm_classifier.predict(X_test))))

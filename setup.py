@@ -1,10 +1,15 @@
+import os
 from distutils.core import setup
+
+version_txt = os.path.join(os.path.dirname(__file__), 'pyfms', 'version.txt')
+with open(version_txt, 'r') as f:
+    version = f.read().strip()
 
 setup(
   name = 'pyfms',
   packages = ['pyfms'],
   license = 'MIT',
-  version = '0.1.6',
+  version = version,
   description = 'A Theano-based Python implementation of Factorization Machines',
   author = 'Daniel Steinberg',
   author_email = 'ds@dannyadam.com',
