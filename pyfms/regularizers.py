@@ -1,6 +1,6 @@
 from theano import tensor as T
 
-import core
+from . import core
 
 class L2(core.Regularizer):
     def __init__(self, beta_w0 = 0.0, beta_w1 = 0.0, beta_v = 0.0):

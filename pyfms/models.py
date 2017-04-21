@@ -1,9 +1,6 @@
 import numpy as np
 
-import core
-import errors
-import optimizers
-import transformers
+from . import core, errors, optimizers, transformers
 
 class Classifier(core.Model, object):
     """A factorization machine classifier."""

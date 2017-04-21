@@ -1,6 +1,6 @@
 from theano import tensor as T
 
-import core
+from . import core
 
 
 class Linear(core.Transformer):

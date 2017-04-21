@@ -181,8 +181,8 @@ class Model(object):
                 min_loss = current_loss
                 min_loss_weights = self.get_weights()
             if verbosity > 0 and (epoch % verbosity == 0):
-                print 'Epoch {}/{}'.format(epoch, nb_epoch)
-                print ' loss: {}, min_loss: {}'.format(current_loss, min_loss)
+                print('Epoch {}/{}'.format(epoch, nb_epoch))
+                print(' loss: {}, min_loss: {}'.format(current_loss, min_loss))
         weights = min_loss_weights if memory else self.get_weights()
         self.set_weights(weights)
 

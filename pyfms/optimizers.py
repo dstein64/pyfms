@@ -1,7 +1,7 @@
 import theano
 from theano import tensor as T
 
-import core
+from . import core
 
 class RMSProp(core.Optimizer):
     def __init__(self,

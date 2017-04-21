@@ -1,6 +1,6 @@
 from theano import tensor as T
 
-import core
+from . import core
 
 class SquaredError(core.Error):
     def apply(self, y, y_hat):
