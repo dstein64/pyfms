@@ -16,7 +16,7 @@ Dependencies
 PyFactorizationMachines supports Python 2.7 and Python 3.x.
 
 Linux and Mac are supported. Windows and other operating systems are not supported, but may be
-compatible if `Theano <http://deeplearning.net/software/theano/>`__ can be successfully installed.
+compatible if `Theano <http://deeplearning.net/software/theano/>`__ can be properly installed.
 
 Installation
 ------------
