@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import abc
 import itertools
 from collections import namedtuple
@@ -5,6 +7,8 @@ from collections import namedtuple
 import numpy as np
 import theano
 from theano import tensor as T
+
+from . import utils
 
 Weights = namedtuple('Weights', ['w0', 'w1', 'v'])
 
@@ -161,7 +165,7 @@ class Model(object):
             sample_weight = (float(n) / np.sum(sample_weight)) * sample_weight
         min_loss = float('inf')
         min_loss_weights = self.get_weights()
-        for epoch in xrange(1, nb_epoch+1):
+        for epoch in utils.xrange(1, nb_epoch+1):
             if shuffle:
                 indices = np.arange(n)
                 np.random.shuffle(indices)

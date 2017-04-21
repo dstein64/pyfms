@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import numpy as np
 from sklearn import datasets
 from sklearn.linear_model import LinearRegression

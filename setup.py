@@ -4,7 +4,7 @@ setup(
   name = 'pyfms',
   packages = ['pyfms'],
   license = 'MIT',
-  version = '0.1.5',
+  version = '0.1.6',
   description = 'A Theano-based Python implementation of Factorization Machines',
   author = 'Daniel Steinberg',
   author_email = 'ds@dannyadam.com',
@@ -20,9 +20,10 @@ setup(
     'License :: OSI Approved :: MIT License',
     'Operating System :: Unix',
     'Operating System :: POSIX :: Linux',
-    'Operating System :: Microsoft :: Windows',
     'Operating System :: MacOS',
-    'Programming Language :: Python :: 2.7'
+    'Programming Language :: Python :: 2.7',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.6'
   ],
   install_requires = ['numpy', 'theano>=0.8.0']
 )

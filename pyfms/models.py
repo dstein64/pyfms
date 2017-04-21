@@ -2,7 +2,7 @@ import numpy as np
 
 from . import core, errors, optimizers, transformers
 
-class Classifier(core.Model, object):
+class Classifier(core.Model):
     """A factorization machine classifier."""
     def __init__(self, feature_count, **kwargs):
         transformer = transformers.Sigmoid()
@@ -28,7 +28,7 @@ class Classifier(core.Model, object):
         return self.theano_predict(X)
 
 
-class Regressor(core.Model, object):
+class Regressor(core.Model):
     """A factorization machine regressor."""
     def __init__(self, feature_count, **kwargs):
         transformer = transformers.Linear()

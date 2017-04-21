@@ -7,7 +7,16 @@ Features
 -  Sample weighting
 -  For binary classification, this implementation uses a logit function
    combined with a cross entropy loss function.
--  Extensibility of algorithms for: regularization, loss function optimization, and the error function
+-  Extensibility of algorithms for: regularization, loss function optimization, and the error
+   function
+
+Dependencies
+------------
+
+PyFactorizationMachines supports Python 2.7 and Python 3.x.
+
+Linux and Mac are supported. Windows and other operating systems are not supported, but may be
+compatible if `Theano <http://deeplearning.net/software/theano/>`__ can be successfully installed.
 
 Installation
 ------------
@@ -27,6 +36,8 @@ Example Usage
 -------------
 
 See `example.py <https://github.com/dstein64/PyFactorizationMachines/blob/master/example.py>`__.
+
+scikit-learn>=0.18 is required to run the example code.
 
 License
 -------
