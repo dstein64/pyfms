@@ -10,7 +10,7 @@ Features
 -  Extensibility of algorithms for: regularization, loss function optimization, and the error
    function
 
-Dependencies
+Requirements
 ------------
 
 PyFactorizationMachines supports Python 2.7 and Python 3.x.
