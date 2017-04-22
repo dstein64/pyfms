@@ -1,5 +1,5 @@
-A Theano-based Python implementation of factorization machines, based on
-the model presented in *Factorization Machines* (Rendle 2010).
+A `Theano <http://deeplearning.net/software/theano/>`__-based Python implementation of
+factorization machines, based on the model presented in *Factorization Machines* (Rendle 2010).
 
 Features
 --------
@@ -15,8 +15,16 @@ Requirements
 
 PyFactorizationMachines supports Python 2.7 and Python 3.x.
 
-Linux and Mac are supported. Windows and other operating systems are not supported, but may be
-compatible if `Theano <http://deeplearning.net/software/theano/>`__ can be properly installed.
+Linux and Mac are supported.
+
+Windows is supported with Theano properly installed. The recommended way to do this is using
+`Anaconda <https://www.continuum.io/anaconda-overview>`__.
+
+::
+
+    > conda install theano
+
+Other operating systems may be compatible if Theano can be properly installed.
 
 Installation
 ------------

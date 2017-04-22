@@ -1,18 +1,18 @@
 ﻿Documentation
 -------------
 
-To use PyFactorizationMachines, first import the *pyfms.models* module.
+To use PyFactorizationMachines, first import the *pyfms* module.
 
-    >>> import pyfms.models
+    >>> import pyfms
     
 ### Initializing a Model
 
-A factorization machine is created with *pyfms.models.Classifier* for a binary classification problem, or
-*pyfms.models.Regressor* for regression. The constructors require an argument specifying the number of features.
+A factorization machine is created with *pyfms.Classifier* for a binary classification problem, or
+*pyfms.Regressor* for regression. The constructors require an argument specifying the number of features.
 
-    >>> model = pyfms.models.Regressor(feature_count)
+    >>> model = pyfms.Regressor(feature_count)
 
-pyfms.models.Regressor and pyfms.models.Classifier both take the following arguments:
+pyfms.Regressor and pyfms.Classifier both take the following arguments:
 
 * **feature_count** The dimensionality of each data point.
 * **k** (optional; defaults to 8) Dimensionality of the factorization of pairwise interactions.
