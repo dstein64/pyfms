@@ -17,8 +17,8 @@ PyFactorizationMachines supports Python 2.7 and Python 3.x.
 
 Linux and Mac are supported.
 
-Windows is supported with Theano properly installed. The recommended way to do this is using
-`Anaconda <https://www.continuum.io/anaconda-overview>`__.
+Windows is supported with Theano properly installed. The recommended way to install Theano on
+Windows is using `Anaconda <https://www.continuum.io/anaconda-overview>`__.
 
 ::
 
