@@ -18,6 +18,9 @@ pyfms.Regressor and pyfms.Classifier both take the following arguments:
 * **k** (optional; defaults to 8) Dimensionality of the factorization of pairwise interactions.
 * **stdev** (optional; defaults to .01) The standard deviation of the normal distribution used to initialize the
 interaction parameters of the model.
+* **X_format** (optional; defaults to "dense") The format of the feature matrices (for training and prediction).
+Dense data is supported with "dense". Sparse data is supported with "csr" (compressed sparse row) or "csc"
+(compressed sparse column).
     
 ### Training a Model
 

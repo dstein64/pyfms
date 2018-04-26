@@ -6,9 +6,12 @@ from collections import namedtuple
 
 import numpy as np
 import theano
+from theano import sparse as S
 from theano import tensor as T
 
 from . import utils
+
+_SUPPORTED_FORMATS = set(["dense", "csc", "csr"])
 
 Weights = namedtuple('Weights', ['w0', 'w1', 'v'])
 
@@ -52,14 +55,29 @@ class Model(object):
                  feature_count,
                  transformer,
                  k = 8,
-                 stdev = 0.1):
+                 stdev = 0.1,
+                 X_format = "dense"):
+        # ************************************************************
+        # * Option Processing
+        # ************************************************************
+
+        self.X_format = str(X_format).lower()
+        if self.X_format not in _SUPPORTED_FORMATS:
+            raise ValueError("Unsupported format: {}").format(X_format)
+
         d = feature_count
 
         # ************************************************************
         # * Symbolic Variables
         # ************************************************************
 
-        self.X = T.matrix() # design matrix
+        # design matrix
+        if X_format == "dense":
+            self.X = T.matrix()
+        elif X_format == "csr":
+            self.X = S.csr_matrix()
+        elif X_format == "csc":
+            self.X = S.csc_matrix()
         self.y = T.vector() # response
         self.s = T.vector() # sample weights
         self.e = T.scalar() # current epoch
@@ -82,12 +100,18 @@ class Model(object):
         # * The Model
         # ************************************************************
 
+        dot = T.dot
+        mul = T.mul
+        if X_format in ("csc", "csr"):
+            dot = S.dot
+            mul = S.mul
+
         # The formula for pairwise interactions is from the bottom left
         # of page 997 of Rendle 2010, "Factorization Machines."
         # This version scales linearly in k and d, as opposed to O(d^2).
-        interactions = 0.5 * T.sum((T.dot(self.X, T.transpose(self.v)) ** 2) \
-                                   - T.dot(self.X ** 2, T.transpose(self.v ** 2)), axis=1)
-        self.y_hat = self.w0[0] + T.dot(self.X, self.w1) + interactions
+        interactions = 0.5 * T.sum((dot(self.X, T.transpose(self.v)) ** 2) \
+                                   - dot(mul(self.X, self.X), T.transpose(self.v ** 2)), axis=1)
+        self.y_hat = self.w0[0] + dot(self.X, self.w1) + interactions
         self.y_hat = transformer.transform(self.y_hat)
 
         # ************************************************************
