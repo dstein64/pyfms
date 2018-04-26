@@ -25,16 +25,28 @@ def error_score(y_true, y_pred):
 
 print('*******************************************')
 print('* Binary Classification Example')
-print('* (with verbose output)')
+print('* (with sparse data and verbose output)')
 print('*******************************************')
 print()
 
-X, y = datasets.load_breast_cancer(return_X_y=True)
+X, y = datasets.load_boston(return_X_y=True)
+
+# Binarize target
+y = y > 30
+
+# Columns 1 and 3 (0-indexed) are sparse.
+# Slice data to the first 5 columns for a higher sparsity ratio.
+X = X[:,:5]
+X = sparse.csr_matrix(X)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
+# Sparsify data
+X_train = sparse.csr_matrix(X_train)
+X_test = sparse.csr_matrix(X_test)
+
 classifier_dims = X.shape[1]
-fm_classifier = pyfms.Classifier(classifier_dims)
-fm_classifier.fit(X_train, y_train, verbosity=2000, nb_epoch=10000)
+fm_classifier = pyfms.Classifier(classifier_dims, k=2, X_format="csr")
+fm_classifier.fit(X_train, y_train, verbosity=5000, nb_epoch=20000)
 print()
 print('Factorization Machine Error: {}'.format(
     error_score(y_test, fm_classifier.predict(X_test))))
@@ -47,20 +59,16 @@ print()
 
 print('*******************************************')
 print('* Regression Example')
-print('* (with sparse data and L2 Regularization)')
+print('* (with L2 Regularization)')
 print('*******************************************')
 print()
 
 X, y = datasets.load_boston(return_X_y=True)
-# Columns 1 and 3 (0-indexed) are sparse.
-# Slice data to the first 5 columns for a higher sparsity ratio.
-X = X[:,:5]
-X = sparse.csr_matrix(X)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
-fm_regressor = pyfms.Regressor(X.shape[1], k=2, X_format="csr")
+fm_regressor = pyfms.Regressor(X.shape[1], k=2)
 reg = pyfms.regularizers.L2(0, 0, .01)
-fm_regressor.fit(X_train, y_train, nb_epoch=30000, regularizer=reg)
+fm_regressor.fit(X_train, y_train, nb_epoch=50000, regularizer=reg)
 print('Factorization Machine MSE: {}'.format(
     mean_squared_error(y_test, fm_regressor.predict(X_test))))
 
@@ -75,7 +83,7 @@ print('* Saving Model Example')
 print('*******************************************')
 print()
 
-# Save the factorization machine regressor that was trained earlier
+# Save the factorization machine classifier that was trained earlier
 
 f = "weights.fm"
 fm_classifier.save_weights(f)
