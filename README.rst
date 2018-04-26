@@ -9,6 +9,7 @@ Features
    combined with a cross entropy loss function.
 -  Extensibility of algorithms for: regularization, loss function optimization, and the error
    function
+-  Support for sparse data
 
 Requirements
 ------------
