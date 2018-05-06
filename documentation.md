@@ -37,7 +37,7 @@ dimensions.
 * **optimizer** (optional; defaults to *pyfms.optimizers.Adam()*) An object of a class that extends
 *pyfms.core.Optimizer*, which specifies how to optimize the loss function.
 * **regularizer** (optional; defaults to None) An object of a class that extends *pyfms.core.Regularizer*, which
-specifies how to regularize the loss function. For example, see *L2*, which implements L2 regularization.
+specifies how to regularize the loss function. For example, see *L1* or *L2* in *regularizers.py*.
 * **sample_weight** (optional; defaults to None) A numpy.ndarray vector with *n* sample weights corresponding to the
 *n* data points in *X*.
 * **batch_size** (optional; defaults to 128) Number of samples per gradient update.
