@@ -25,7 +25,7 @@ def error_score(y_true, y_pred):
 
 print('*******************************************')
 print('* Binary Classification Example')
-print('* (with sparse data and verbose output)')
+print('* (with sample weighting and sparse data)')
 print('*******************************************')
 print()
 
@@ -40,26 +40,29 @@ X = X[:,:5]
 X = sparse.csr_matrix(X)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
+# Re-weight instances so that each class gets equal total weighting.
+class_count_lookup = dict(zip(*np.unique(y_train, return_counts=True)))
+sample_weight = np.array([1.0 / class_count_lookup[_y] for _y in y_train])
+
 # Sparsify data
 X_train = sparse.csr_matrix(X_train)
 X_test = sparse.csr_matrix(X_test)
 
 classifier_dims = X.shape[1]
 fm_classifier = pyfms.Classifier(classifier_dims, k=2, X_format="csr")
-fm_classifier.fit(X_train, y_train, verbosity=5000, nb_epoch=20000)
-print()
+fm_classifier.fit(X_train, y_train, sample_weight=sample_weight, nb_epoch=20000)
 print('Factorization Machine Error: {}'.format(
     error_score(y_test, fm_classifier.predict(X_test))))
 
 logistic_regression = LogisticRegression()
-logistic_regression.fit(X, y)
+logistic_regression.fit(X_train, y_train, sample_weight=sample_weight)
 print('Logistic Regression Error: {}'.format(
     error_score(y_test, logistic_regression.predict(X_test))))
 print()
 
 print('*******************************************')
 print('* Regression Example')
-print('* (with L2 Regularization)')
+print('* (with L2 Regularization and verbose output)')
 print('*******************************************')
 print()
 
@@ -68,7 +71,8 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
 fm_regressor = pyfms.Regressor(X.shape[1], k=2)
 reg = pyfms.regularizers.L2(0, 0, .01)
-fm_regressor.fit(X_train, y_train, nb_epoch=50000, regularizer=reg)
+fm_regressor.fit(X_train, y_train, nb_epoch=50000, verbosity=5000, regularizer=reg)
+print()
 print('Factorization Machine MSE: {}'.format(
     mean_squared_error(y_test, fm_regressor.predict(X_test))))
 
