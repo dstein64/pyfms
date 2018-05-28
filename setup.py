@@ -13,7 +13,6 @@ setup(
   version = version,
   description = 'A Theano-based Python implementation of Factorization Machines',
   long_description = open('README.rst').read(),
-  long_description_content_type='text/x-rst',
   author = 'Daniel Steinberg',
   author_email = 'ds@dannyadam.com',
   url = 'https://github.com/dstein64/PyFactorizationMachines',
@@ -34,5 +33,5 @@ setup(
     'Programming Language :: Python :: 3',
     'Programming Language :: Python :: 3.6'
   ],
-  install_requires = ['numpy', 'theano>=0.8.0']
+  requires = ['numpy', 'theano (>=0.8.0)']
 )
