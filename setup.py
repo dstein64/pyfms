@@ -1,5 +1,5 @@
 import os
-from distutils.core import setup
+from setuptools import setup
 
 version_txt = os.path.join(os.path.dirname(__file__), 'pyfms', 'version.txt')
 with open(version_txt, 'r') as f:
@@ -33,5 +33,5 @@ setup(
     'Programming Language :: Python :: 3',
     'Programming Language :: Python :: 3.6'
   ],
-  requires = ['numpy', 'theano (>=0.8.0)']
+  install_requires = ['numpy', 'theano (>=0.8.0)']
 )
