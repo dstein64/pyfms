@@ -1,7 +1,7 @@
 ﻿Documentation
 -------------
 
-To use PyFactorizationMachines, first import the *pyfms* module.
+To use `pyfms`, first import the module.
 
     >>> import pyfms
     

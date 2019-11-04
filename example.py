@@ -12,7 +12,7 @@ from sklearn.model_selection import train_test_split
 import pyfms
 import pyfms.regularizers
 
-# This shows examples of how to use PyFactorizationMachines. The datasets may not be
+# This shows examples of how to use pyfms. The datasets may not be
 # particularly suitable for using factorization machines.
 
 print('pyfms {}'.format(pyfms.__version__))

@@ -15,7 +15,7 @@ setup(
   long_description = open('README.rst').read(),
   author = 'Daniel Steinberg',
   author_email = 'ds@dannyadam.com',
-  url = 'https://github.com/dstein64/PyFactorizationMachines',
+  url = 'https://github.com/dstein64/pyfms',
   keywords = ['factorization-machines', 'machine-learning'],
   classifiers=[
     'Development Status :: 4 - Beta',
