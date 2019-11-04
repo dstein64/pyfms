@@ -14,7 +14,7 @@ Features
 Requirements
 ------------
 
-PyFactorizationMachines supports Python 2.7 and Python 3.x.
+`pyfms` supports Python 2.7 and Python 3.x.
 
 Linux and Mac are supported.
 
@@ -39,21 +39,21 @@ Installation
 Documentation
 -------------
 
-See `documentation.md <https://github.com/dstein64/PyFactorizationMachines/blob/master/documentation.md>`__.
+See `documentation.md <https://github.com/dstein64/pyfms/blob/master/documentation.md>`__.
 
 Example Usage
 -------------
 
-See `example.py <https://github.com/dstein64/PyFactorizationMachines/blob/master/example.py>`__.
+See `example.py <https://github.com/dstein64/pyfms/blob/master/example.py>`__.
 
 scikit-learn>=0.18 is required to run the example code.
 
 License
 -------
 
-PyFactorizationMachines has an `MIT License <https://en.wikipedia.org/wiki/MIT_License>`__.
+`pyfms` has an `MIT License <https://en.wikipedia.org/wiki/MIT_License>`__.
 
-See `LICENSE <https://github.com/dstein64/PyFactorizationMachines/blob/master/LICENSE>`__.
+See `LICENSE <https://github.com/dstein64/pyfms/blob/master/LICENSE>`__.
 
 Acknowledgments
 ---------------
