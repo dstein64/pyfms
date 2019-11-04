@@ -6,20 +6,8 @@ with open(version_txt, 'r') as f:
     version = f.read().strip()
 
 setup(
-  name = 'pyfms',
-  packages = ['pyfms'],
-  package_data = {'pyfms': ['version.txt']},
-  license = 'MIT',
-  version = version,
-  description = 'A Theano-based Python implementation of Factorization Machines',
-  long_description = open('README.rst').read(),
   author = 'Daniel Steinberg',
   author_email = 'ds@dannyadam.com',
-  extras_require={
-    'dev': ['scikit-learn'],
-  },
-  url = 'https://github.com/dstein64/pyfms',
-  keywords = ['factorization-machines', 'machine-learning'],
   classifiers=[
     'Development Status :: 4 - Beta',
     'Intended Audience :: Developers',
@@ -36,5 +24,17 @@ setup(
     'Programming Language :: Python :: 3',
     'Programming Language :: Python :: 3.6'
   ],
-  install_requires = ['numpy', 'theano (>=0.8.0)']
+  description = 'A Theano-based Python implementation of Factorization Machines',
+  extras_require={
+    'dev': ['scikit-learn'],
+  },
+  install_requires = ['numpy', 'theano (>=0.8.0)'],
+  keywords = ['factorization-machines', 'machine-learning'],
+  license = 'MIT',
+  long_description = open('README.rst').read(),
+  name = 'pyfms',
+  package_data={'pyfms': ['version.txt']},
+  packages=['pyfms'],
+  url = 'https://github.com/dstein64/pyfms',
+  version = version,
 )
