@@ -15,6 +15,9 @@ setup(
   long_description = open('README.rst').read(),
   author = 'Daniel Steinberg',
   author_email = 'ds@dannyadam.com',
+  extras_require={
+    'dev': ['scikit-learn'],
+  },
   url = 'https://github.com/dstein64/pyfms',
   keywords = ['factorization-machines', 'machine-learning'],
   classifiers=[
