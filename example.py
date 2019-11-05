@@ -54,7 +54,7 @@ fm_classifier.fit(X_train, y_train, sample_weight=sample_weight, nb_epoch=20000)
 print('Factorization Machine Error: {}'.format(
     error_score(y_test, fm_classifier.predict(X_test))))
 
-logistic_regression = LogisticRegression()
+logistic_regression = LogisticRegression(solver='lbfgs')
 logistic_regression.fit(X_train, y_train, sample_weight=sample_weight)
 print('Logistic Regression Error: {}'.format(
     error_score(y_test, logistic_regression.predict(X_test))))

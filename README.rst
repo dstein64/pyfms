@@ -1,3 +1,9 @@
+.. image:: https://travis-ci.org/dstein64/pyfms.svg?branch=master
+    :target: https://travis-ci.org/dstein64/pyfms
+
+pyfms
+=====
+
 A `Theano <http://deeplearning.net/software/theano/>`__-based Python implementation of
 factorization machines, based on the model presented in *Factorization Machines* (Rendle 2010).
 
@@ -47,6 +53,16 @@ Example Usage
 See `example.py <https://github.com/dstein64/pyfms/blob/master/example.py>`__.
 
 scikit-learn>=0.18 is required to run the example code.
+
+Tests
+-----
+
+Tests are in `tests/ <https://github.com/dstein64/pyfms/blob/master/tests>`__.
+
+::
+
+    # Run tests
+    $ python -m unittest discover tests -v
 
 License
 -------
