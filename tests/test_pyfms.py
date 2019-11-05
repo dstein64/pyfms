@@ -69,8 +69,9 @@ class TestPyfms(unittest.TestCase):
     def test_save_load_classifier(self):
         X, y = datasets.load_breast_cancer(return_X_y=True)
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+        k = 4
 
-        classifier_before = pyfms.Classifier(X.shape[1])
+        classifier_before = pyfms.Classifier(X.shape[1], k=k)
         classifier_before.fit(X_train, y_train, nb_epoch=1000)
 
         weights_before = classifier_before.get_weights()
@@ -88,6 +89,30 @@ class TestPyfms(unittest.TestCase):
         for wb, wa in zip(weights_before, weights_after):
             np.testing.assert_array_equal(wb, wa)
         self.assertEqual(accuracy_before, accuracy_after)
+
+    def test_save_load_regressor(self):
+        X, y = datasets.load_boston(return_X_y=True)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+        k = 4
+
+        regressor_before = pyfms.Regressor(X.shape[1], k=k)
+        regressor_before.fit(X_train, y_train, nb_epoch=1000)
+
+        weights_before = regressor_before.get_weights()
+        mse_before = mean_squared_error(y_test, regressor_before.predict(X_test))
+
+        regressor_file = os.path.join(self.workspace, 'regressor.fm')
+        regressor_before.save_weights(regressor_file)
+
+        regressor_after = pyfms.Regressor(X.shape[1])
+        regressor_after.load_weights(regressor_file)
+
+        weights_after = regressor_after.get_weights()
+        mse_after = mean_squared_error(y_test, regressor_after.predict(X_test))
+
+        for wb, wa in zip(weights_before, weights_after):
+            np.testing.assert_array_equal(wb, wa)
+        self.assertEqual(mse_before, mse_after)
 
 
 if __name__ == '__main__':
