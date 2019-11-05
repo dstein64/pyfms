@@ -1,3 +1,6 @@
+import os
+import shutil
+import tempfile
 import unittest
 
 import numpy as np
@@ -11,6 +14,12 @@ import pyfms
 import pyfms.regularizers
 
 class TestPyfms(unittest.TestCase):
+    def setUp(self):
+        self.workspace = tempfile.mkdtemp()
+
+    def tearDown(self):
+        shutil.rmtree(self.workspace)
+
     def test_weighted_classifier(self):
         np.random.seed(0)
         X, y = datasets.load_breast_cancer(return_X_y=True)
@@ -19,10 +28,10 @@ class TestPyfms(unittest.TestCase):
         class_count_lookup = dict(zip(*np.unique(y_train, return_counts=True)))
         sample_weight = np.array([1.0 / class_count_lookup[_y] for _y in y_train])
 
-        fm_classifier = pyfms.Classifier(X.shape[1])
-        fm_classifier.fit(X_train, y_train, sample_weight=sample_weight, nb_epoch=10000)
+        classifier = pyfms.Classifier(X.shape[1])
+        classifier.fit(X_train, y_train, sample_weight=sample_weight, nb_epoch=10000)
 
-        accuracy = accuracy_score(y_test, fm_classifier.predict(X_test))
+        accuracy = accuracy_score(y_test, classifier.predict(X_test))
         self.assertAlmostEqual(accuracy, 0.9649122807017544)
 
     def test_sparse_classifier(self):
@@ -39,10 +48,10 @@ class TestPyfms(unittest.TestCase):
         X_test = sparse.csr_matrix(X_test)
 
         classifier_dims = X.shape[1]
-        fm_classifier = pyfms.Classifier(classifier_dims, k=2, X_format="csr")
-        fm_classifier.fit(X_train, y_train, nb_epoch=20000)
+        classifier = pyfms.Classifier(classifier_dims, k=2, X_format="csr")
+        classifier.fit(X_train, y_train, nb_epoch=20000)
 
-        accuracy = accuracy_score(y_test, fm_classifier.predict(X_test))
+        accuracy = accuracy_score(y_test, classifier.predict(X_test))
         self.assertAlmostEqual(accuracy, 0.8725490196078431)
 
     def test_regularized_regressor(self):
@@ -50,12 +59,35 @@ class TestPyfms(unittest.TestCase):
         X, y = datasets.load_boston(return_X_y=True)
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
-        fm_regressor = pyfms.Regressor(X.shape[1], k=2)
+        regressor = pyfms.Regressor(X.shape[1], k=2)
         reg = pyfms.regularizers.L2(0, 0, .01)
-        fm_regressor.fit(X_train, y_train, nb_epoch=50000, regularizer=reg)
+        regressor.fit(X_train, y_train, nb_epoch=50000, regularizer=reg)
 
-        mse = mean_squared_error(y_test, fm_regressor.predict(X_test))
+        mse = mean_squared_error(y_test, regressor.predict(X_test))
         self.assertAlmostEqual(mse, 26.28317095306481)
+
+    def test_save_load_classifier(self):
+        X, y = datasets.load_breast_cancer(return_X_y=True)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+
+        classifier_before = pyfms.Classifier(X.shape[1])
+        classifier_before.fit(X_train, y_train, nb_epoch=1000)
+
+        weights_before = classifier_before.get_weights()
+        accuracy_before = accuracy_score(y_test, classifier_before.predict(X_test))
+
+        classifier_file = os.path.join(self.workspace, 'classifier.fm')
+        classifier_before.save_weights(classifier_file)
+
+        classifier_after = pyfms.Classifier(X.shape[1])
+        classifier_after.load_weights(classifier_file)
+
+        weights_after = classifier_after.get_weights()
+        accuracy_after = accuracy_score(y_test, classifier_after.predict(X_test))
+
+        for wb, wa in zip(weights_before, weights_after):
+            np.testing.assert_array_equal(wb, wa)
+        self.assertEqual(accuracy_before, accuracy_after)
 
 
 if __name__ == '__main__':
