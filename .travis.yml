@@ -1,8 +1,0 @@
-language: python
-python:
-  - "2.7"
-  - "3.6"
-install:
-  - pip install .[dev]
-script:
-  - python -m unittest discover tests -v

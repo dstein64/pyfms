@@ -1,5 +1,5 @@
-.. image:: https://travis-ci.org/dstein64/pyfms.svg?branch=master
-    :target: https://travis-ci.org/dstein64/pyfms
+.. image:: https://github.com/dstein64/pyfms/workflows/build/badge.svg
+    :target: https://github.com/dstein64/pyfms/actions
 
 pyfms
 =====
