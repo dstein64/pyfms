@@ -1,5 +1,6 @@
 import os
 import shutil
+import sys
 import tempfile
 import unittest
 
@@ -32,7 +33,7 @@ class TestPyfms(unittest.TestCase):
         classifier.fit(X_train, y_train, sample_weight=sample_weight, nb_epoch=10000)
 
         accuracy = accuracy_score(y_test, classifier.predict(X_test))
-        expected_accuracy = 0.9649122807017544 if os.name == 'darwin' else 0.9736842105263158
+        expected_accuracy = 0.9649122807017544 if sys.platform == 'darwin' else 0.9736842105263158
         self.assertAlmostEqual(accuracy, expected_accuracy)
 
     def test_sparse_classifier(self):
