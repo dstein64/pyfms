@@ -31,7 +31,7 @@ setup(
   install_requires = ['numpy', 'theano (>=0.8.0)'],
   keywords = ['factorization-machines', 'machine-learning'],
   license = 'MIT',
-  long_description = open('README.rst').read(),
+  long_description = open('README.rst', encoding='utf8').read(),
   name = 'pyfms',
   package_data={'pyfms': ['version.txt']},
   packages=['pyfms'],
