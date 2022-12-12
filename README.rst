@@ -20,7 +20,7 @@ Features
 Requirements
 ------------
 
-`pyfms` supports Python 2.7 and Python 3.x.
+`pyfms` supports Python 3.x.
 
 Linux and Mac are supported.
 
