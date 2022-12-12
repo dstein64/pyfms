@@ -5,9 +5,20 @@ import itertools
 from collections import namedtuple
 
 import numpy as np
+import numpy.distutils
+
+# Monkey patch numpy when loading theano, to avoid the following error when using numpy>=1.22:
+#   AttributeError: module 'numpy.distutils.__config__' has no attribute 'blas_opt_info'
+blas_opt_info = getattr(np.distutils.__config__, 'blas_opt_info', None)
+if blas_opt_info is None:
+    np.distutils.__config__.blas_opt_info = np.distutils.__config__.blas_ilp64_opt_info
+
 import theano
 from theano import sparse as S
 from theano import tensor as T
+
+if blas_opt_info is None:
+    delattr(np.distutils.__config__, 'blas_opt_info')
 
 from . import utils
 
