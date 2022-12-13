@@ -66,7 +66,9 @@ class TestPyfms(unittest.TestCase):
         regressor.fit(X_train, y_train, nb_epoch=5000, regularizer=reg)
 
         mse = mean_squared_error(y_test, regressor.predict(X_test))
-        self.assertAlmostEqual(mse, 23724.324079343063)
+        # Different mean squared errors are observed on different platforms.
+        max_expected_mse = 23724.324079343063
+        self.assertLessEqual(mse, max_expected_mse)
 
     def test_save_load_classifier(self):
         X, y = datasets.load_breast_cancer(return_X_y=True)
