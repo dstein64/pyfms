@@ -93,7 +93,7 @@ class TestPyfms(unittest.TestCase):
         self.assertEqual(accuracy_before, accuracy_after)
 
     def test_save_load_regressor(self):
-        X, y = datasets.load_boston(return_X_y=True)
+        X, y = datasets.load_diabetes(return_X_y=True)
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
         k = 4
 
