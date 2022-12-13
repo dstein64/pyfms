@@ -1,6 +1,5 @@
 import os
 import shutil
-import sys
 import tempfile
 import unittest
 
@@ -39,35 +38,35 @@ class TestPyfms(unittest.TestCase):
 
     def test_sparse_classifier(self):
         np.random.seed(0)
-        X, y = datasets.load_boston(return_X_y=True)
-        y = y > 30 # Binarize target
-        # Columns 1 and 3 (0-indexed) are sparse.
-        # Slice data to the first 5 columns for a higher sparsity ratio.
-        X = X[:, :5]
+        X, y = datasets.load_digits(return_X_y=True)
         X = sparse.csr_matrix(X)
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+
+        # pyfms only supports binary classifiers, so convert to a 0 versus other digits classifier.
+        y = np.minimum(1, y)
+
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5)
         # Sparsify data
         X_train = sparse.csr_matrix(X_train)
         X_test = sparse.csr_matrix(X_test)
 
         classifier_dims = X.shape[1]
         classifier = pyfms.Classifier(classifier_dims, k=2, X_format="csr")
-        classifier.fit(X_train, y_train, nb_epoch=20000)
+        classifier.fit(X_train, y_train, nb_epoch=2000)
 
         accuracy = accuracy_score(y_test, classifier.predict(X_test))
-        self.assertAlmostEqual(accuracy, 0.8725490196078431)
+        self.assertAlmostEqual(accuracy, 0.9944382647385984)
 
     def test_regularized_regressor(self):
         np.random.seed(0)
-        X, y = datasets.load_boston(return_X_y=True)
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+        X, y = datasets.load_diabetes(return_X_y=True)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5)
 
         regressor = pyfms.Regressor(X.shape[1], k=2)
         reg = pyfms.regularizers.L2(0, 0, .01)
-        regressor.fit(X_train, y_train, nb_epoch=50000, regularizer=reg)
+        regressor.fit(X_train, y_train, nb_epoch=5000, regularizer=reg)
 
         mse = mean_squared_error(y_test, regressor.predict(X_test))
-        self.assertAlmostEqual(mse, 26.28317095306481)
+        self.assertAlmostEqual(mse, 23724.324079343063)
 
     def test_save_load_classifier(self):
         X, y = datasets.load_breast_cancer(return_X_y=True)
